@@ -1,22 +1,16 @@
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron'
+import type { SaveEditorApi } from '../common/ipc'
 
-// Custom APIs for renderer
-const api = {}
-
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
+const api: SaveEditorApi = {
+  detectSaveDir: () => ipcRenderer.invoke('saves:detect'),
+  chooseSaveDir: () => ipcRenderer.invoke('saves:choose'),
+  listSlots: (dir) => ipcRenderer.invoke('saves:listSlots', dir),
+  readSlot: (dir, slot) => ipcRenderer.invoke('saves:readSlot', dir, slot),
+  writeSlot: (dir, slot, text) => ipcRenderer.invoke('saves:writeSlot', dir, slot, text),
+  listBackups: (dir, slot) => ipcRenderer.invoke('saves:listBackups', dir, slot),
+  restoreBackup: (dir, slot, name) => ipcRenderer.invoke('saves:restoreBackup', dir, slot, name),
+  readCollection: (dir) => ipcRenderer.invoke('saves:readCollection', dir),
+  writeCollection: (dir, text) => ipcRenderer.invoke('saves:writeCollection', dir, text)
 }
+
+contextBridge.exposeInMainWorld('api', api)

@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import * as files from './files'
 
 function createWindow(): void {
   // Create the browser window.
@@ -51,6 +52,35 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  ipcMain.handle('saves:detect', () => files.defaultSaveDir())
+  ipcMain.handle('saves:choose', () => files.chooseSaveDir())
+  ipcMain.handle('saves:listSlots', (_e, dir: string) => files.listSlots(dir))
+  ipcMain.handle('saves:readSlot', (_e, dir: string, slot: number) => files.readSlotFile(dir, slot))
+  ipcMain.handle('saves:writeSlot', (_e, dir: string, slot: number, text: string) => {
+    try {
+      return { ok: true, backup: files.writeSlotFile(dir, slot, text).backup }
+    } catch (err) {
+      return { ok: false, error: String(err) }
+    }
+  })
+  ipcMain.handle('saves:listBackups', (_e, dir: string, slot: number) => files.listBackups(dir, slot))
+  ipcMain.handle('saves:restoreBackup', (_e, dir: string, slot: number, name: string) => {
+    try {
+      files.restoreBackup(dir, slot, name)
+      return { ok: true }
+    } catch (err) {
+      return { ok: false, error: String(err) }
+    }
+  })
+  ipcMain.handle('saves:readCollection', (_e, dir: string) => files.readCollectionFile(dir))
+  ipcMain.handle('saves:writeCollection', (_e, dir: string, text: string) => {
+    try {
+      return { ok: true, backup: files.writeCollectionFile(dir, text).backup }
+    } catch (err) {
+      return { ok: false, error: String(err) }
+    }
+  })
 
   createWindow()
 
