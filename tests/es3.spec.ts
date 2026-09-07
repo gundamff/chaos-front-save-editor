@@ -83,4 +83,30 @@ describe('es3', () => {
       x: 1
     })
   })
+
+  it('serializes dictionary keys unquoted (game Read_int requires bare int keys)', () => {
+    const text = '{"CurrentArmyRanks":{"__type":"Dict","value":{11:[3331,2],7:[3022,4]}}}'
+    const out = stringifyEs3(parseEs3(text))
+    expect(out).toMatch(/[{,]\s*11:\s*\[\s*3331,\s*2\s*\]/)
+    expect(out).toMatch(/[{,]\s*7:\s*\[\s*3022,\s*4\s*\]/)
+    expect(out).not.toContain('"11":')
+    expect(out).not.toContain('"7":')
+  })
+
+  it('does not unquote keys inside string values', () => {
+    const doc = parseEs3('{"Note":{"__type":"string","value":"a, \\"123\\": b"}}')
+    const out = stringifyEs3(doc)
+    expect(out).toContain('a, \\"123\\": b')
+    const back = parseEs3(out)
+    expect(getField<string>(back, 'Note')).toBe('a, "123": b')
+  })
+
+  it('full save round-trip through unquoted serialization stays stable', () => {
+    const text = '{"CurrentArmyRanks":{"__type":"Dict","value":{11:[3331,2],7:[3022,4]}},"PlayerCredit":{"__type":"int","value":1}}'
+    const a = parseEs3(text)
+    const once = parseEs3(stringifyEs3(a))
+    const twice = parseEs3(stringifyEs3(once))
+    expect(twice).toEqual(a)
+    expect(stringifyEs3(once)).toBe(stringifyEs3(a))
+  })
 })

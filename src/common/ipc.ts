@@ -27,6 +27,7 @@ export interface SaveEditorApi {
   writeSlot(dir: string, slot: number, text: string): Promise<WriteResult>
   listBackups(dir: string, slot: number): Promise<BackupInfo[]>
   restoreBackup(dir: string, slot: number, name: string): Promise<WriteResult>
+  deleteBackup(dir: string, name: string): Promise<WriteResult>
   readCollection(dir: string): Promise<string>
   writeCollection(dir: string, text: string): Promise<WriteResult>
 }

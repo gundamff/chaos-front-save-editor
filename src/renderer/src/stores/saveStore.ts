@@ -76,6 +76,17 @@ export const useSaveStore = defineStore('save', () => {
     else ElMessage.error('还原失败: ' + r.error)
   }
 
+  async function deleteBackup(name: string): Promise<void> {
+    if (currentSlot.value === null) return
+    const r = await window.api.deleteBackup(saveDir.value, name)
+    if (r.ok) {
+      backups.value = await window.api.listBackups(saveDir.value, currentSlot.value)
+      ElMessage.success('备份已删除')
+    } else {
+      ElMessage.error('删除失败: ' + r.error)
+    }
+  }
+
   return {
     saveDir,
     slots,
@@ -91,6 +102,7 @@ export const useSaveStore = defineStore('save', () => {
     loadSlot,
     saveSlot,
     saveCollectionData,
-    restoreBackup
+    restoreBackup,
+    deleteBackup
   }
 })

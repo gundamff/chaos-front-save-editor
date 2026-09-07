@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
-import { pruneBackups, restoreBackup, summarize, writeSlotFile } from '../src/main/files'
+import { deleteBackupFile, pruneBackups, restoreBackup, summarize, writeSlotFile } from '../src/main/files'
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cfse-'))
 afterAll(() => fs.rmSync(tmp, { recursive: true, force: true }))
@@ -67,5 +67,19 @@ describe('restoreBackup', () => {
       .filter((f) => f.startsWith(`savedata${slot}_`) && f.endsWith('.cf.bak') && f !== path.basename(old))
     expect(created).toHaveLength(1)
     expect(fs.readFileSync(path.join(backupDir, created[0]), 'utf8')).toBe('CURRENT')
+  })
+})
+
+describe('deleteBackupFile', () => {
+  it('removes a backup under backup/ and rejects path traversal', () => {
+    const backupDir = path.join(tmp, 'backup')
+    fs.mkdirSync(backupDir, { recursive: true })
+    const name = 'savedata0_20260101000000.cf.bak'
+    const target = path.join(backupDir, name)
+    fs.writeFileSync(target, 'GONE', 'utf8')
+    deleteBackupFile(tmp, name)
+    expect(fs.existsSync(target)).toBe(false)
+    expect(() => deleteBackupFile(tmp, '../savedata0.cf')).toThrow(/非法备份文件名/)
+    expect(() => deleteBackupFile(tmp, name)).toThrow(/备份不存在/)
   })
 })

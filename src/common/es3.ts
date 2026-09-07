@@ -30,9 +30,13 @@ export function parseEs3(text: string): Es3Doc {
   return doc
 }
 
-/** 序列化：与游戏 ES3/LitJson 兼容（解析器不关心排版），UTF-8 无 BOM */
+/** 序列化：与游戏 ES3/LitJson 兼容（解析器不关心排版），UTF-8 无 BOM。
+ * 关键：整型字典键必须输出为裸数字（与 parseJsonLoose 的宽松规则对称）——
+ * 游戏侧 ES3JSONReader.Read_int() 直接 Int32.Parse 键名，带引号的键（JSON.stringify 默认
+ * 输出 {"11":[…]}）会 FormatException 导致读档黑屏（Player.log 实证）。
+ * 局限（已接受，与解析对称）：字符串值内部含 ,"123": 形式的文本会被改写 —— 真实存档不存在该模式。 */
 export function stringifyEs3(doc: Es3Doc): string {
-  return JSON.stringify(doc, null, 2) + '\n'
+  return JSON.stringify(doc, null, 2).replace(/([{,]\s*)"(\d+)":/g, '$1$2:') + '\n'
 }
 
 export function getField<T>(doc: Es3Doc, key: string): T {

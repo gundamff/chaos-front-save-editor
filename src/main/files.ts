@@ -115,6 +115,15 @@ export function restoreBackup(dir: string, slot: number, name: string): void {
   fs.renameSync(tmp, target)
 }
 
+/** 删除单个备份文件（仅允许 backup/ 目录内的 *.cf.bak） */
+export function deleteBackupFile(dir: string, name: string): void {
+  const safe = path.basename(name) // 防路径穿越
+  if (!/^[A-Za-z0-9_]+\.cf\.bak$/.test(safe)) throw new Error(`非法备份文件名: ${safe}`)
+  const target = path.join(dir, 'backup', safe)
+  if (!fs.existsSync(target)) throw new Error(`备份不存在: ${safe}`)
+  fs.rmSync(target)
+}
+
 export function readCollectionFile(dir: string): string {
   return fs.readFileSync(path.join(dir, 'collection.cf'), 'utf8')
 }

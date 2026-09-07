@@ -43,10 +43,13 @@ onMounted(async () => {
       <el-table-column label="时间" width="180">
         <template #default="{ row }">{{ new Date(row.mtimeMs).toLocaleString('zh-CN') }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="100">
+      <el-table-column label="操作" width="180">
         <template #default="{ row }">
           <el-popconfirm title="确认还原该备份？当前文件将先自动备份" @confirm="store.restoreBackup(row.name)">
             <template #reference><el-button size="small">还原</el-button></template>
+          </el-popconfirm>
+          <el-popconfirm title="确认删除该备份？不可恢复" @confirm="store.deleteBackup(row.name)">
+            <template #reference><el-button size="small" type="danger">删除</el-button></template>
           </el-popconfirm>
         </template>
       </el-table-column>

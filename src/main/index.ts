@@ -73,6 +73,14 @@ app.whenReady().then(() => {
       return { ok: false, error: String(err) }
     }
   })
+  ipcMain.handle('saves:deleteBackup', (_e, dir: string, name: string) => {
+    try {
+      files.deleteBackupFile(dir, name)
+      return { ok: true }
+    } catch (err) {
+      return { ok: false, error: String(err) }
+    }
+  })
   ipcMain.handle('saves:readCollection', (_e, dir: string) => files.readCollectionFile(dir))
   ipcMain.handle('saves:writeCollection', (_e, dir: string, text: string) => {
     try {
