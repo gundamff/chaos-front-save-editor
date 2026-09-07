@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { parseEs3 } from '../src/common/es3'
 import { ALL_UNIT_TYPE_IDS, gameData, unitMaxExpOf, type GameData } from '../src/common/gameData'
 import { CHARACTER_MAX_EXP } from '../src/common/level'
 import {
@@ -33,71 +34,16 @@ const collectionPath = envPath('CFSE_E2E_COLLECTION')
 const haveSave = savePath !== null && existsSync(savePath)
 const haveCollection = collectionPath !== null && existsSync(collectionPath)
 
-/**
- * 【已知产品缺陷的临时规避，仅本测试文件内使用】
- * parseEs3（src/common/es3.ts）用严格 JSON.parse，而游戏/LitJson 写 Dictionary<int,…>
- * 时输出不带引号的数字键（真实存档 CurrentArmyRanks: `"value" : {11:[…],7:[…]}`），
- * 严格 JSON.parse 直接抛 SyntaxError → SaveData.load 无法载入真实存档（P0，待修 parseEs3）。
- * 此函数把「不在字符串内的 {n: / ,n: 形式数字键」补上引号，转成严格 JSON；
- * 待 parseEs3 修复后应删除本函数，直接 SaveData.load(raw)。
- */
-function quoteDictKeys(text: string): string {
-  let out = ''
-  let i = 0
-  let inStr = false
-  while (i < text.length) {
-    const c = text[i]
-    if (inStr) {
-      out += c
-      if (c === '\\') {
-        out += text[i + 1] ?? ''
-        i += 2
-        continue
-      }
-      if (c === '"') inStr = false
-      i++
-      continue
-    }
-    if (c === '"') {
-      inStr = true
-      out += c
-      i++
-      continue
-    }
-    if (c === '{' || c === ',') {
-      let j = i + 1
-      while (j < text.length && /\s/.test(text[j])) j++
-      let k = j
-      if (text[k] === '-') k++
-      const digits = /^[0-9]+/.exec(text.slice(k))
-      if (digits) {
-        k += digits[0].length
-        let m = k
-        while (m < text.length && /\s/.test(text[m])) m++
-        if (text[m] === ':') {
-          out += c + text.slice(i + 1, j) + '"' + digits[0] + '"'
-          i = k
-          continue
-        }
-      }
-    }
-    out += c
-    i++
-  }
-  return out
-}
-
 interface Es3File {
   [k: string]: { __type?: string; value: unknown }
 }
 
-/** 载入真实存档（规避键引号问题后走产品 SaveData.load）+ 解析后的原始文档（用于往返比对） */
+/** 载入真实存档（产品 parseEs3/SaveData.load，兼容 LitJson 裸键）+ 解析后的原始文档（用于往返比对） */
 function loadRealSave(): { save: SaveData; doc: Es3File } {
   if (!savePath) throw new Error('CFSE_E2E_SAVE 未设置')
   const raw = readFileSync(savePath, 'utf8')
-  const normalized = quoteDictKeys(raw)
-  const doc = JSON.parse(normalized) as Es3File
-  return { save: SaveData.load(normalized), doc }
+  const doc = parseEs3(raw) as Es3File
+  return { save: SaveData.load(raw), doc }
 }
 
 const gd: GameData = gameData

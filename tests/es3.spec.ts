@@ -3,6 +3,7 @@ import {
   getField,
   isWrapped,
   parseEs3,
+  parseJsonLoose,
   setField,
   stringifyEs3,
   type Es3Doc
@@ -56,5 +57,30 @@ describe('es3', () => {
     expect(doc.PlayerCredit.value).toBe(123)
     expect(doc.PlayerCredit.__type).toBe('int')
     expect(getField<number>(doc, 'PlayerCredit')).toBe(123)
+  })
+
+  it('parses LitJson unquoted integer keys (real save CurrentArmyRanks)', () => {
+    const text = '{"CurrentArmyRanks":{"__type":"Dict","value":{11:[3331,2],7:[3022,4]}}}'
+    const doc = parseEs3(text)
+    expect(doc.CurrentArmyRanks.__type).toBe('Dict')
+    expect(getField<Record<string, number[]>>(doc, 'CurrentArmyRanks')).toEqual({
+      11: [3331, 2],
+      7: [3022, 4]
+    })
+  })
+
+  it('round-trips LitJson unquoted integer keys with same interpreted value', () => {
+    const text = '{"CurrentArmyRanks":{"__type":"Dict","value":{11:[3331,2],7:[3022,4]}}}'
+    const a = parseEs3(text)
+    const b = parseEs3(stringifyEs3(a))
+    expect(b).toEqual(a)
+  })
+
+  it('parseJsonLoose quotes bare integer keys only', () => {
+    expect(parseJsonLoose('{11:[3331,2],7:[3022,4],"x":1}')).toEqual({
+      11: [3331, 2],
+      7: [3022, 4],
+      x: 1
+    })
   })
 })
