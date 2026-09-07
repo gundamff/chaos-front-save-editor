@@ -1,0 +1,26 @@
+{
+  "HistoryTime": { "__type": "string", "value": "委员会历28年2月24日" },
+  "RealTime": { "__type": "string", "value": "2026/9/7 15:52:02" },
+  "PlayerStar": { "__type": "int", "value": 6 },
+  "PlayArmyName": { "__type": "string", "value": "焰火团" },
+  "PlayerFlag": { "__type": "int", "value": 12 },
+  "PlayerLeaderName": { "__type": "string", "value": "红玉" },
+  "PlayerDay": { "__type": "int", "value": 9774 },
+  "PlayerArmyId": { "__type": "int", "value": 12 },
+  "PlayerCredit": { "__type": "int", "value": 9788541 },
+  "PlayerPrestige": { "__type": "int", "value": 1815 },
+  "PlayerMedals": { "__type": "System.Int32[],mscorlib", "value": [0, 0, 0, 7200] },
+  "PlayerRelationships": { "__type": "System.Int32[],mscorlib", "value": [300, 50, 300, 999] },
+  "PlayerCharacters": { "__type": "System.Collections.Generic.List`1[[System.Int32]],mscorlib", "value": [84, 87, 83] },
+  "PlayerCharacterEXPs": { "__type": "System.Collections.Generic.List`1[[System.Int32]],mscorlib", "value": [12241, 17409, 8990] },
+  "PlayerUnlockedUnitTypes": { "__type": "System.Collections.Generic.List`1[[System.Int32]],mscorlib", "value": [1, 2, 35] },
+  "PlayerUnlockedItems": { "__type": "System.Collections.Generic.List`1[[System.Int32]],mscorlib", "value": [1, 2] },
+  "PlayerItems": { "__type": "System.Int32[],mscorlib", "value": [5, 11, 0, 0, 5, 10, 5, 10, 0, 0, 0, 0, 0, 10, 0, 0] },
+  "PlayerUnits": {
+    "__type": "System.Collections.Generic.List`1[[Unit, Assembly-CSharp]],mscorlib",
+    "value": [
+      { "unitType": 5, "armyId": 12, "characterId": 0, "items": [], "custom": 0, "number": [0, 0], "exp": 7498, "playerName": "" },
+      { "unitType": 78, "armyId": 12, "characterId": 85, "items": [1, 1], "custom": 85, "number": [1, 2], "exp": 17042, "playerName": "" }
+    ]
+  }
+}
