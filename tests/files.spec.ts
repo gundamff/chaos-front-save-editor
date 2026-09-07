@@ -2,10 +2,19 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
-import { pruneBackups } from '../src/main/files'
+import { pruneBackups, summarize, writeSlotFile } from '../src/main/files'
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cfse-'))
 afterAll(() => fs.rmSync(tmp, { recursive: true, force: true }))
+
+const SLOT_SAMPLE = JSON.stringify({
+  PlayerUnits: { __type: 'List', value: [{ unitType: 1 }, { unitType: 2 }] },
+  PlayArmyName: { __type: 'string', value: '焰火团' },
+  PlayerDay: { __type: 'int', value: 100 },
+  RealTime: { __type: 'string', value: '2026/9/7' },
+  PlayerLeaderName: { __type: 'string', value: '红玉' },
+  PlayerFlag: { __type: 'int', value: 12 }
+})
 
 describe('pruneBackups', () => {
   it('keeps newest N backups', () => {
@@ -18,5 +27,26 @@ describe('pruneBackups', () => {
     pruneBackups(tmp, 'savedata0', 10)
     const left = fs.readdirSync(tmp).filter((f) => f.endsWith('.bak'))
     expect(left).toHaveLength(10)
+  })
+})
+
+describe('summarize', () => {
+  it('unwraps ES3 fields exactly once', () => {
+    const s = summarize(SLOT_SAMPLE)
+    expect(s.unitCount).toBe(2)
+    expect(s.armyName).toBe('焰火团')
+    expect(s.leaderName).toBe('红玉')
+    expect(s.day).toBe(100)
+    expect(s.saveTime).toBe('2026/9/7')
+    expect(s.flag).toBe(12)
+  })
+})
+
+describe('writeSlotFile', () => {
+  it('rejects unparseable text and leaves the target unchanged', () => {
+    const target = path.join(tmp, 'savedata0.cf')
+    fs.writeFileSync(target, SLOT_SAMPLE, 'utf8')
+    expect(() => writeSlotFile(tmp, 0, 'not json')).toThrow()
+    expect(fs.readFileSync(target, 'utf8')).toBe(SLOT_SAMPLE)
   })
 })

@@ -39,13 +39,14 @@ export function summarize(text: string): Partial<SlotInfo> {
   try {
     const doc = JSON.parse(text)
     const value = (k: string) => doc[k]?.value
+    const units = doc['PlayerUnits']?.value
     return {
       armyName: value('PlayArmyName'),
       leaderName: value('PlayerLeaderName'),
       day: value('PlayerDay'),
       saveTime: value('RealTime'),
       flag: value('PlayerFlag'),
-      unitCount: Array.isArray(value('PlayerUnits')?.value) ? value('PlayerUnits').value.length : undefined
+      unitCount: Array.isArray(units) ? units.length : undefined
     }
   } catch {
     return {}
@@ -56,8 +57,9 @@ export function readSlotFile(dir: string, slot: number): string {
   return fs.readFileSync(path.join(dir, slotFileName(slot)), 'utf8')
 }
 
-/** 备份 → 临时文件 → 原子替换 */
+/** 备份 → 临时文件 → 原子替换；解析失败一律拒绝写入 */
 export function writeSlotFile(dir: string, slot: number, text: string): { backup: string } {
+  JSON.parse(text)
   const target = path.join(dir, slotFileName(slot))
   const backup = backupFile(dir, target)
   const tmp = `${target}.tmp-${Date.now()}`
@@ -116,6 +118,7 @@ export function readCollectionFile(dir: string): string {
 }
 
 export function writeCollectionFile(dir: string, text: string): { backup: string } {
+  JSON.parse(text)
   const target = path.join(dir, 'collection.cf')
   const backup = backupFile(dir, target)
   const tmp = `${target}.tmp-${Date.now()}`
