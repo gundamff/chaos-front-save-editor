@@ -5,3 +5,6 @@ out
 .eslintcache
 *.log*
 .superpowers/
+backup/
+*.cf
+!tests/fixtures/*.json

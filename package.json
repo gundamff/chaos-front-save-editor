@@ -1,9 +1,9 @@
 {
   "name": "chaos-front-save-editor",
   "version": "1.0.0",
-  "description": "An Electron application with Vue and TypeScript",
+  "description": "Chaos Front 存档修改器（仅限单机学习使用）",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "chaos-front-save-editor contributors",
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --write .",
@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
+    "dist": "npm run build && electron-builder --win",
     "build": "npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
