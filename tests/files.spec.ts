@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
-import { pruneBackups, summarize, writeSlotFile } from '../src/main/files'
+import { pruneBackups, restoreBackup, summarize, writeSlotFile } from '../src/main/files'
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cfse-'))
 afterAll(() => fs.rmSync(tmp, { recursive: true, force: true }))
@@ -48,5 +48,24 @@ describe('writeSlotFile', () => {
     fs.writeFileSync(target, SLOT_SAMPLE, 'utf8')
     expect(() => writeSlotFile(tmp, 0, 'not json')).toThrow()
     expect(fs.readFileSync(target, 'utf8')).toBe(SLOT_SAMPLE)
+  })
+})
+
+describe('restoreBackup', () => {
+  it('backs up the current file before restoring the backup content', () => {
+    const slot = 1
+    const target = path.join(tmp, `savedata${slot}.cf`)
+    fs.writeFileSync(target, 'CURRENT', 'utf8')
+    const backupDir = path.join(tmp, 'backup')
+    fs.mkdirSync(backupDir, { recursive: true })
+    const old = path.join(backupDir, `savedata${slot}_20260101000000.cf.bak`)
+    fs.writeFileSync(old, 'OLDER', 'utf8')
+    restoreBackup(tmp, slot, path.basename(old))
+    expect(fs.readFileSync(target, 'utf8')).toBe('OLDER')
+    const created = fs
+      .readdirSync(backupDir)
+      .filter((f) => f.startsWith(`savedata${slot}_`) && f.endsWith('.cf.bak') && f !== path.basename(old))
+    expect(created).toHaveLength(1)
+    expect(fs.readFileSync(path.join(backupDir, created[0]), 'utf8')).toBe('CURRENT')
   })
 })

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import { SaveData, loadCollectionText, serializeCollectionText, type CollectionSnapshot } from '../../../common/saveModel'
 import type { BackupInfo, SlotInfo, WriteResult } from '../../../common/ipc'
 
@@ -34,16 +35,21 @@ export const useSaveStore = defineStore('save', () => {
   }
 
   async function loadSlot(slot: number): Promise<void> {
-    const text = await window.api.readSlot(saveDir.value, slot)
-    save.value = SaveData.load(text)
-    currentSlot.value = slot
-    dirty.value = false
     try {
-      collection.value = loadCollectionText(await window.api.readCollection(saveDir.value))
-    } catch {
-      collection.value = null
+      const text = await window.api.readSlot(saveDir.value, slot)
+      const data = SaveData.load(text)
+      currentSlot.value = slot
+      save.value = data
+      dirty.value = false
+      try {
+        collection.value = loadCollectionText(await window.api.readCollection(saveDir.value))
+      } catch {
+        collection.value = null
+      }
+      backups.value = await window.api.listBackups(saveDir.value, slot)
+    } catch (e) {
+      ElMessage.error('载入失败: ' + (e instanceof Error ? e.message : String(e)))
     }
-    backups.value = await window.api.listBackups(saveDir.value, slot)
   }
 
   async function saveSlot(): Promise<WriteResult | null> {
@@ -67,6 +73,7 @@ export const useSaveStore = defineStore('save', () => {
     if (currentSlot.value === null) return
     const r = await window.api.restoreBackup(saveDir.value, currentSlot.value, name)
     if (r.ok) await loadSlot(currentSlot.value)
+    else ElMessage.error('还原失败: ' + r.error)
   }
 
   return {

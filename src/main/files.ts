@@ -109,6 +109,7 @@ export function restoreBackup(dir: string, slot: number, name: string): void {
   const src = path.join(backupDir, safe)
   if (!fs.existsSync(src)) throw new Error(`备份不存在: ${safe}`)
   const target = path.join(dir, slotFileName(slot))
+  backupFile(dir, target)
   const tmp = `${target}.tmp-${Date.now()}`
   fs.copyFileSync(src, tmp)
   fs.renameSync(tmp, target)

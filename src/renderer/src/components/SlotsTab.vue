@@ -45,7 +45,7 @@ onMounted(async () => {
       </el-table-column>
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
-          <el-popconfirm title="确认还原该备份？当前文件将先被覆盖" @confirm="store.restoreBackup(row.name)">
+          <el-popconfirm title="确认还原该备份？当前文件将先自动备份" @confirm="store.restoreBackup(row.name)">
             <template #reference><el-button size="small">还原</el-button></template>
           </el-popconfirm>
         </template>
