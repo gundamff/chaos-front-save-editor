@@ -35,7 +35,9 @@ describe('unit levels', () => {
     const table = [0, 900, 2100, 3590, 5390, 8380, 11970]
     expect(unitLevelForExp(0, table)).toBe(0)
     expect(unitLevelForExp(900, table)).toBe(1)
-    expect(unitLevelForExp(8389, table)).toBe(6)
+    expect(unitLevelForExp(8380, table)).toBe(5)
+    expect(unitLevelForExp(8389, table)).toBe(5)
+    expect(unitLevelForExp(11970, table)).toBe(6)
     expect(unitLevelForExp(999999, table)).toBe(6)
     expect(UNIT_MAX_LEVEL).toBe(6)
     expect(UNIT_EXP6_FALLBACK).toBe(11970)

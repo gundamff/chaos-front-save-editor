@@ -28,10 +28,10 @@ export function characterExpForLevel(level: number): number {
   return CHARACTER_LEVEL_TABLE[Math.min(level, CHARACTER_LEVEL_TABLE.length) - 1]
 }
 
-/** 机体 exp → 等级（0..6），table 为该机型 levelType 对应的 7 档经验（各等级经验上限，超过 table[lv] 即升到 lv+1） */
+/** 机体 exp → 等级（0..6），table 为该机型 levelType 对应的 7 档经验（table[lv] 为达到 lv 的门槛，>= 判定，与游戏 GetLevel 一致） */
 export function unitLevelForExp(exp: number, table: number[]): number {
-  for (let lv = UNIT_MAX_LEVEL; lv >= 1; lv--) {
-    if (exp > table[lv - 1]) return lv
+  for (let lv = UNIT_MAX_LEVEL; lv >= 0; lv--) {
+    if (exp >= table[lv]) return lv
   }
   return 0
 }
