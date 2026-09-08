@@ -9,7 +9,15 @@ export const en: MessageTree = {
     pickDirAlert: 'Save folder was not detected. Please choose one manually.',
     saved: 'Saved (backup {0})',
     langZh: '中文',
-    langEn: 'English'
+    langEn: 'English',
+    about: 'About'
+  },
+  about: {
+    title: 'About',
+    version: 'Version {0}',
+    github: 'GitHub repository',
+    disclaimer:
+      'Unofficial tool. Not affiliated with, authorized by, or endorsed by ChaosGalaxyStudio / Chaos Front. For personal, offline study by owners of a legitimate copy only.'
   },
   tabs: {
     slots: 'Saves',

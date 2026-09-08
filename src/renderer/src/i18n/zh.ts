@@ -9,7 +9,15 @@ export const zh: MessageTree = {
     pickDirAlert: '未自动找到存档目录，请手动选择',
     saved: '已保存（备份 {0}）',
     langZh: '中文',
-    langEn: 'English'
+    langEn: 'English',
+    about: '关于'
+  },
+  about: {
+    title: '关于',
+    version: '版本 {0}',
+    github: 'GitHub 仓库',
+    disclaimer:
+      '非官方工具。与 ChaosGalaxyStudio / 《Chaos Front》官方无任何关联、授权或合作。仅供已购买正版的玩家在本地、单机环境下学习研究。'
   },
   tabs: {
     slots: '存档',

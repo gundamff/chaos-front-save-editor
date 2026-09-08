@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { SaveEditorApi } from '../common/ipc'
 
 const api: SaveEditorApi = {
+  getAppVersion: () => ipcRenderer.invoke('app:getVersion'),
+  openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
   detectSaveDir: () => ipcRenderer.invoke('saves:detect'),
   chooseSaveDir: () => ipcRenderer.invoke('saves:choose'),
   listSlots: (dir) => ipcRenderer.invoke('saves:listSlots', dir),

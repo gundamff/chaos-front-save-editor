@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import * as files from './files'
+import { GITHUB_REPO_URL } from '../common/ipc'
 
 function createWindow(): void {
   // Create the browser window.
@@ -52,6 +53,13 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  ipcMain.handle('app:getVersion', () => app.getVersion())
+  ipcMain.handle('shell:openExternal', async (_e, url: string) => {
+    if (url !== GITHUB_REPO_URL) return false
+    await shell.openExternal(url)
+    return true
+  })
 
   ipcMain.handle('saves:detect', () => files.defaultSaveDir())
   ipcMain.handle('saves:choose', () => files.chooseSaveDir())
