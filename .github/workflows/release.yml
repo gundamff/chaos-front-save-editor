@@ -72,7 +72,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
-          body_file: release-notes.md
+          body_path: release-notes.md
           files: dist/ChaosFrontSaveEditor-${{ env.VERSION }}.exe
           fail_on_unmatched_files: true
         env:
