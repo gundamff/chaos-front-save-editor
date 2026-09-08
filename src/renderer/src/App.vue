@@ -8,6 +8,8 @@ import UnitsTab from './components/UnitsTab.vue'
 import PilotsTab from './components/PilotsTab.vue'
 import UnlockTab from './components/UnlockTab.vue'
 import CollectionTab from './components/CollectionTab.vue'
+import PlanetsTab from './components/PlanetsTab.vue'
+import FormationTab from './components/FormationTab.vue'
 
 const store = useSaveStore()
 const tab = ref('slots')
@@ -35,6 +37,8 @@ async function saveAll(): Promise<void> {
       <el-tabs v-model="tab">
         <el-tab-pane label="存档" name="slots"><SlotsTab /></el-tab-pane>
         <el-tab-pane label="资源" name="resources" :disabled="!store.save"><ResourcesTab /></el-tab-pane>
+        <el-tab-pane label="星球" name="planets" :disabled="!store.save"><PlanetsTab /></el-tab-pane>
+        <el-tab-pane label="编队" name="formation" :disabled="!store.save"><FormationTab /></el-tab-pane>
         <el-tab-pane label="机体 / 飞船" name="units" :disabled="!store.save"><UnitsTab /></el-tab-pane>
         <el-tab-pane label="驾驶员" name="pilots" :disabled="!store.save"><PilotsTab /></el-tab-pane>
         <el-tab-pane label="全解锁" name="unlock" :disabled="!store.save"><UnlockTab /></el-tab-pane>

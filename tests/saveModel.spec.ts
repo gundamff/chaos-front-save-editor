@@ -28,6 +28,19 @@ const gd: GameData = {
     { id: 2, name: '强化件', icon: 1 },
     { id: 3, name: '新装备', icon: 2 }
   ],
+  armies: [
+    { id: 2, name: '委员会军第一舰队', flag: 2 },
+    { id: 3, name: '委员会军第二舰队', flag: 3 },
+    { id: 4, name: '马西利亚革命军', flag: 4 },
+    { id: 5, name: '黑旗舰队', flag: 5 }
+  ],
+  planets: [
+    { id: 1, name: '马西利亚' },
+    { id: 2, name: '巴巴里' },
+    { id: 3, name: '呼罗珊' },
+    { id: 4, name: '达契亚' },
+    { id: 5, name: '霸州' }
+  ],
   levelTables: {
     '1': [0, 180, 420, 720, 1080, 1680, 2400],
     '3': [0, 240, 560, 960, 1440, 2230, 3190],
@@ -115,6 +128,69 @@ describe('SaveData', () => {
 
   it('rejects structurally broken saves', () => {
     expect(() => SaveData.load('{"Whatever": {"value": 1}}')).toThrow()
+  })
+
+  it('factionLabel maps medal/relationship index to FactionData army name', () => {
+    const s = SaveData.load(fixture())
+    expect(s.factionLabel(gd, 0)).toBe('委员会军第一舰队')
+    expect(s.factionLabel(gd, 3)).toBe('黑旗舰队')
+  })
+
+  it('setPlanetFaction moves planet id between FactionData.planets lists', () => {
+    const s = SaveData.load(fixture())
+    expect(s.planets[0].faction).toBe(3)
+    s.setPlanetFaction(0, 1)
+    const s2 = SaveData.load(s.serialize())
+    expect(s2.planets[0].faction).toBe(1)
+    const f1 = s2.factions.find((f) => f.id === 1)!
+    const f3 = s2.factions.find((f) => f.id === 3)!
+    expect(f1.planets).toEqual(expect.arrayContaining([1, 2, 4]))
+    expect(f3.planets).not.toContain(1)
+  })
+
+  it('setPlanetStat clamps to Max and marks value', () => {
+    const s = SaveData.load(fixture())
+    s.setPlanetStat(0, 'economics', 99999)
+    expect(s.planets[0].economics).toBe(900)
+    s.setPlanetStat(0, 'stability', 50)
+    expect(s.planets[0].stability).toBe(50)
+  })
+
+  it('deployUnit places undeployed unit and undeploy clears to [0,0]', () => {
+    const s = SaveData.load(fixture())
+    expect(s.isUndeployed(s.units[0])).toBe(true)
+    expect(s.unitAt(1, 0)).toBe(-1)
+    s.deployUnit(0, 1, 0)
+    expect(s.units[0].number).toEqual([1, 0])
+    expect(s.unitAt(1, 0)).toBe(0)
+    s.undeployUnit(0)
+    expect(s.units[0].number).toEqual([0, 0])
+    expect(s.unitAt(1, 0)).toBe(-1)
+  })
+
+  it('deployUnit onto occupied slot swaps positions', () => {
+    const s = SaveData.load(fixture())
+    // unit1 already at [1,2]
+    s.deployUnit(0, 1, 2)
+    expect(s.units[0].number).toEqual([1, 2])
+    expect(s.units[1].number).toEqual([0, 0])
+  })
+
+  it('setUnitPilot rejects duplicate pilot on another unit', () => {
+    const s = SaveData.load(fixture())
+    expect(s.units[1].characterId).toBe(85)
+    expect(() => s.setUnitPilot(0, 85)).toThrow(/已被占用/)
+    s.setUnitPilot(0, 84)
+    expect(s.units[0].characterId).toBe(84)
+    s.setUnitPilot(0, 0)
+    expect(s.units[0].characterId).toBe(0)
+  })
+
+  it('deployUnit rejects out-of-range grid', () => {
+    const s = SaveData.load(fixture())
+    expect(() => s.deployUnit(0, 0, 0)).toThrow(/越界/)
+    expect(() => s.deployUnit(0, 5, 0)).toThrow(/越界/)
+    expect(() => s.deployUnit(0, 1, 6)).toThrow(/越界/)
   })
 })
 

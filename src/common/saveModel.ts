@@ -1,5 +1,6 @@
 import {
   ALL_UNIT_TYPE_IDS,
+  armyById,
   levelTableOf,
   unitMaxExpOf,
   unitTypeById,
@@ -18,6 +19,51 @@ export interface UnitEntry {
   exp: number
   playerName: string
 }
+
+export interface PlanetState {
+  id: number
+  name: number
+  info: number
+  faction: number
+  icon: number
+  site: number
+  mapColor: number
+  economics: number
+  economicsMax: number
+  industry: number
+  industryMax: number
+  defense: number
+  defenseMax: number
+  stability: number
+  stabilityMax: number
+  buildings: number[]
+  neighbors: number[]
+}
+
+export interface FactionState {
+  id: number
+  army: number
+  leader: number
+  spyMaster: number
+  isActive: boolean
+  capital: number
+  allies: number[]
+  planets: number[]
+  enemyFactions: number[]
+  commanders: number[]
+  funds: number
+  power: number
+  shipModel: number
+  proposalAction: number[]
+  chats: unknown[]
+  checkChats: boolean
+}
+
+export type PlanetStatKey = 'economics' | 'industry' | 'defense' | 'stability'
+
+/** 编队网格：存档 row 为 1..FORMATIONATION_ROWS，col 为 0..FORMATIONATION_COLS-1；[0,0] 表示未上阵 */
+export const FORMATION_ROWS = 4
+export const FORMATION_COLS = 6
 
 const REQUIRED_KEYS = ['PlayerUnits', 'PlayerCharacters', 'PlayerArmyId', 'PlayerCredit'] as const
 
@@ -112,12 +158,111 @@ export class SaveData {
     this.relationships[i] = Math.round(v)
   }
 
+  /** 勋章/关系下标 i ↔ FactionData.id === i+1 的军团显示名 */
+  factionLabel(gd: GameData, index: number): string {
+    const factionId = index + 1
+    const faction = this.factions.find((f) => f.id === factionId)
+    if (!faction) return `势力${factionId}`
+    return armyById(gd, faction.army)?.name ?? `军团${faction.army}`
+  }
+
+  get factions(): FactionState[] {
+    return getField<FactionState[]>(this.doc, 'FactionData')
+  }
+
+  get planets(): PlanetState[] {
+    return getField<PlanetState[]>(this.doc, 'PlanetData')
+  }
+
+  setPlanetStat(index: number, key: PlanetStatKey, value: number): void {
+    const p = this.planets[index]
+    if (!p) return
+    const maxKey = `${key}Max` as `${PlanetStatKey}Max`
+    const max = p[maxKey]
+    p[key] = Math.max(0, Math.min(Math.round(value), max))
+  }
+
+  setPlanetMax(index: number, key: PlanetStatKey, value: number): void {
+    const p = this.planets[index]
+    if (!p) return
+    const maxKey = `${key}Max` as `${PlanetStatKey}Max`
+    const next = Math.max(0, Math.round(value))
+    p[maxKey] = next
+    if (p[key] > next) p[key] = next
+  }
+
+  /** 修改星球归属，并同步各势力 FactionData.planets */
+  setPlanetFaction(index: number, factionId: number): void {
+    const p = this.planets[index]
+    if (!p) return
+    const planetId = p.id
+    const from = p.faction
+    if (from === factionId) return
+    p.faction = factionId
+    for (const f of this.factions) {
+      f.planets = f.planets.filter((id) => id !== planetId)
+      if (f.id === factionId && !f.planets.includes(planetId)) {
+        f.planets.push(planetId)
+      }
+    }
+  }
+
   docPlayerItems(): number[] {
     return getField<number[]>(this.doc, 'PlayerItems')
   }
 
   get units(): UnitEntry[] {
     return getField<UnitEntry[]>(this.doc, 'PlayerUnits')
+  }
+
+  isUndeployed(u: UnitEntry): boolean {
+    const n = u.number ?? [0, 0]
+    return n[0] === 0 && n[1] === 0
+  }
+
+  /** 存档坐标 row∈[1,FORMATIONATION_ROWS]、col∈[0,FORMATIONATION_COLS)；未找到返回 -1 */
+  unitAt(row: number, col: number): number {
+    return this.units.findIndex((u) => !this.isUndeployed(u) && u.number[0] === row && u.number[1] === col)
+  }
+
+  private assertFormationSlot(row: number, col: number): void {
+    if (row < 1 || row > FORMATION_ROWS || col < 0 || col >= FORMATION_COLS) {
+      throw new Error(`编队坐标越界: [${row},${col}]（有效 row=1..${FORMATION_ROWS}, col=0..${FORMATION_COLS - 1}）`)
+    }
+  }
+
+  /** 将机体部署到格子；目标已有机体则交换站位（含与未上阵交换） */
+  deployUnit(unitIndex: number, row: number, col: number): void {
+    this.assertFormationSlot(row, col)
+    const units = this.units
+    const u = units[unitIndex]
+    if (!u) throw new Error(`机体下标无效: ${unitIndex}`)
+    const other = this.unitAt(row, col)
+    const from = [...(u.number ?? [0, 0])]
+    if (other === unitIndex) return
+    if (other >= 0) {
+      units[other].number = from
+    }
+    u.number = [row, col]
+  }
+
+  undeployUnit(unitIndex: number): void {
+    const u = this.units[unitIndex]
+    if (!u) throw new Error(`机体下标无效: ${unitIndex}`)
+    u.number = [0, 0]
+  }
+
+  /** 分配驾驶员；characterId>0 且已被其他机体占用则拒绝 */
+  setUnitPilot(unitIndex: number, characterId: number): void {
+    const units = this.units
+    const u = units[unitIndex]
+    if (!u) throw new Error(`机体下标无效: ${unitIndex}`)
+    const cid = Math.max(0, Math.round(characterId))
+    if (cid > 0) {
+      const taken = units.findIndex((x, i) => i !== unitIndex && x.characterId === cid)
+      if (taken >= 0) throw new Error(`驾驶员已被占用（机体 #${taken}）`)
+    }
+    u.characterId = cid
   }
 
   setUnitExp(index: number, exp: number): void {

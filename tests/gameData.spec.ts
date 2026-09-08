@@ -20,4 +20,9 @@ describe('game-data.json（提取产物）', () => {
     expect(gameData.characters.length).toBeGreaterThan(30)
     expect(gameData.items).toHaveLength(16)
   })
+  it('has armies and planets', () => {
+    expect(gameData.armies.length).toBe(32)
+    expect(gameData.planets).toHaveLength(17)
+    expect(gameData.planets[0].name).toBe('马西利亚')
+  })
 })

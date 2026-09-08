@@ -62,6 +62,13 @@ const armies = parseXmlItems(tables.army).map((a) => ({
   id: num(a.Index), name: lang[num(a.Name) - 1] ?? `军团${a.Index}`, flag: num(a.Flag)
 }))
 
+/** 存档 PlanetData.name 指向 LanguageData 下标（1-based）；当前地图 17 星为 358..374 */
+const planets = Array.from({ length: 17 }, (_, i) => {
+  const id = i + 1
+  const nameId = 357 + id
+  return { id, name: lang[nameId - 1] ?? `星球${id}` }
+})
+
 const unitMaxExp = {}
 for (const u of unitTypes) {
   const t = levelTables[String(u.levelType)]
@@ -164,12 +171,12 @@ for (let n = 0; n <= 33; n++) copyPng(`flagRound${n}`, `flag-round-${n}`)
 for (let n = 0; n <= 11; n++) cropSprite(`traditionIcon_${n}`, 'traditionIcon', `tradition-${n}`)
 
 // ---------- Phase 4: game-data.json ----------
-const gameData = { unitTypes, characters, items, armies, levelTables, unitMaxExp }
+const gameData = { unitTypes, characters, items, armies, planets, levelTables, unitMaxExp }
 const jsonPath = path.join(OUT, 'src', 'common', 'data', 'game-data.json')
 fs.mkdirSync(path.dirname(jsonPath), { recursive: true })
 fs.writeFileSync(jsonPath, JSON.stringify(gameData, null, 2) + '\n', 'utf8')
 
-console.log('完成:', JSON.stringify(stats), '| unitTypes:', unitTypes.length, '| characters:', characters.length, '| items:', items.length, '| armies:', armies.length)
+console.log('完成:', JSON.stringify(stats), '| unitTypes:', unitTypes.length, '| characters:', characters.length, '| items:', items.length, '| armies:', armies.length, '| planets:', planets.length)
 if (unitTypes.length !== 92) die('机型数量异常（应为 92），检查提取')
 
 function waitHttp(port, timeoutMs) {

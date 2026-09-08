@@ -1,6 +1,6 @@
 {
   "name": "chaos-front-save-editor",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Chaos Front 存档修改器（仅限单机学习使用）",
   "main": "./out/main/index.js",
   "author": "chaos-front-save-editor contributors",

@@ -20,10 +20,23 @@ export interface ItemEntry {
   icon: number
 }
 
+export interface ArmyEntry {
+  id: number
+  name: string
+  flag: number
+}
+
+export interface PlanetEntry {
+  id: number
+  name: string
+}
+
 export interface GameData {
   unitTypes: UnitTypeEntry[]
   characters: CharacterEntry[]
   items: ItemEntry[]
+  armies: ArmyEntry[]
+  planets: PlanetEntry[]
   levelTables: Record<string, number[]>
   unitMaxExp: Record<string, number>
 }
@@ -43,6 +56,14 @@ export function characterById(gd: GameData, id: number): CharacterEntry | undefi
 
 export function itemById(gd: GameData, id: number): ItemEntry | undefined {
   return gd.items.find((i) => i.id === id)
+}
+
+export function armyById(gd: GameData, id: number): ArmyEntry | undefined {
+  return gd.armies.find((a) => a.id === id)
+}
+
+export function planetById(gd: GameData, id: number): PlanetEntry | undefined {
+  return gd.planets.find((p) => p.id === id)
 }
 
 export function levelTableOf(gd: GameData, levelType: number): number[] {
