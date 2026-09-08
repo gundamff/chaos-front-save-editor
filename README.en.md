@@ -9,6 +9,7 @@ A Windows desktop save editor for *Chaos Front*, built with Electron. Edit resou
 ## Features
 
 - **Saves**: Auto-detects the save folder (`%USERPROFILE%\AppData\LocalLow\ChaosGalaxyStudio\Chaos Front`), lists 6 slots (army, commander, day, unit count, save time), supports picking a folder manually; auto-backup before save (keeps last 10), restore or delete backups from the panel
+- **UI language**: Chinese / English; follows the system locale by default, switchable in the header
 - **Resources**: Credits, prestige, star rating; medals / relationships labeled with real faction names
 - **Planets**: Edit economy / industry / defense / stability and owning faction (ownership changes sync `FactionData.planets`)
 - **Formation**: 4×6 grid deploy / undeploy / swap, and assign pilots (one pilot cannot crew two units)

@@ -5,6 +5,7 @@ import { useSaveStore } from '../stores/saveStore'
 import { characterById, gameData, unitTypeById } from '../../../common/gameData'
 import { FORMATION_COLS, FORMATION_ROWS } from '../../../common/saveModel'
 import { gameImage } from '../lib/images'
+import { t, translateError } from '../i18n'
 
 const store = useSaveStore()
 const selectedUnit = ref<number | null>(null)
@@ -23,7 +24,7 @@ const undeployed = computed(() =>
 )
 
 const pilotOptions = computed(() => [
-  { value: 0, label: '（无驾驶员）' },
+  { value: 0, label: t('formation.noPilot') },
   ...characters.value.map((id) => ({
     value: id,
     label: characterById(gameData, id)?.name ?? `#${id}`
@@ -34,7 +35,7 @@ function typeName(typeId: number): string {
   return unitTypeById(gameData, typeId)?.name ?? `#${typeId}`
 }
 function pilotName(id: number): string {
-  if (!id) return '—'
+  if (!id) return t('formation.none')
   return characterById(gameData, id)?.name ?? `#${id}`
 }
 function wrap(fn: () => void): void {
@@ -42,7 +43,7 @@ function wrap(fn: () => void): void {
     fn()
     store.markDirty()
   } catch (e) {
-    ElMessage.error(e instanceof Error ? e.message : String(e))
+    ElMessage.error(translateError(e))
   }
 }
 
@@ -91,20 +92,14 @@ const selected = computed(() =>
 
 <template>
   <div v-if="store.save" class="formation">
-    <el-alert
-      type="info"
-      show-icon
-      :closable="false"
-      title="先点选机体（网格或未上阵列表），再点目标格子上阵/换位；同一驾驶员不能开两台机"
-      class="hint"
-    />
+    <el-alert type="info" show-icon :closable="false" :title="t('formation.hint')" class="hint" />
 
     <div class="toolbar">
       <el-button :disabled="selectedUnit === null || (selected && store.save.isUndeployed(selected))" @click="undeploySelected()">
-        下阵选中
+        {{ t('formation.undeploy') }}
       </el-button>
       <span v-if="selectedUnit !== null" class="sel">
-        已选：{{ typeName(selected!.unitType) }} · {{ pilotName(selected!.characterId) }}
+        {{ t('formation.selected', typeName(selected!.unitType), pilotName(selected!.characterId)) }}
         <template v-if="!store.save.isUndeployed(selected!)">（{{ selected!.number[0] }},{{ selected!.number[1] }}）</template>
       </span>
       <el-select
@@ -112,7 +107,7 @@ const selected = computed(() =>
         size="small"
         style="width: 180px"
         :model-value="selected!.characterId"
-        placeholder="驾驶员"
+        :placeholder="t('formation.pilot')"
         @change="setPilot"
       >
         <el-option v-for="o in pilotOptions" :key="o.value" :label="o.label" :value="o.value" />
@@ -122,10 +117,10 @@ const selected = computed(() =>
     <div class="grid-wrap">
       <div class="col-head">
         <span class="corner" />
-        <span v-for="c in cols" :key="'h' + c" class="col-label">列 {{ c }}</span>
+        <span v-for="c in cols" :key="'h' + c" class="col-label">{{ t('formation.col', c) }}</span>
       </div>
       <div v-for="r in rows" :key="'r' + r" class="grid-row">
-        <span class="row-label">行 {{ r }}</span>
+        <span class="row-label">{{ t('formation.row', r) }}</span>
         <button
           v-for="c in cols"
           :key="r + '-' + c"
@@ -150,12 +145,12 @@ const selected = computed(() =>
               {{ pilotName(units[cellUnitIndex(r, c)].characterId) }}
             </div>
           </template>
-          <span v-else class="empty">空</span>
+          <span v-else class="empty">{{ t('formation.empty') }}</span>
         </button>
       </div>
     </div>
 
-    <h4>未上阵（{{ undeployed.length }}）</h4>
+    <h4>{{ t('formation.bench', undeployed.length) }}</h4>
     <div class="bench">
       <button
         v-for="{ u, index } in undeployed"
@@ -171,7 +166,7 @@ const selected = computed(() =>
           <div class="pilot">{{ pilotName(u.characterId) }}</div>
         </div>
       </button>
-      <span v-if="!undeployed.length" class="dim">全部已上阵</span>
+      <span v-if="!undeployed.length" class="dim">{{ t('formation.allDeployed') }}</span>
     </div>
   </div>
 </template>

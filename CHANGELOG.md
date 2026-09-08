@@ -11,6 +11,7 @@
 ### 文档
 
 - 增加英文文档：`README.en.md`、`CHANGELOG.en.md`、`docs/RELEASE.en.md`
+- 修改器界面中英切换（默认跟随系统语言）
 
 ## [1.1.0] - 2026-09-08
 

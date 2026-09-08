@@ -10,6 +10,7 @@ import UnlockTab from './components/UnlockTab.vue'
 import CollectionTab from './components/CollectionTab.vue'
 import PlanetsTab from './components/PlanetsTab.vue'
 import FormationTab from './components/FormationTab.vue'
+import { elementLocale, locale, setLocale, t, type AppLocale } from './i18n'
 
 const store = useSaveStore()
 const tab = ref('slots')
@@ -19,33 +20,54 @@ onMounted(() => store.init())
 async function saveAll(): Promise<void> {
   const r = await store.saveSlot()
   if (!r) return
-  r.ok ? ElMessage.success(`已保存（备份 ${r.backup}）`) : ElMessage.error(r.error)
+  r.ok ? ElMessage.success(t('app.saved', r.backup ?? '')) : ElMessage.error(r.error)
+}
+
+function switchLang(next: AppLocale): void {
+  setLocale(next)
 }
 </script>
 
 <template>
-  <el-container class="root">
-    <el-header class="header">
-      <span class="title">Chaos Front 存档修改器</span>
-      <span class="dir">{{ store.saveDir || '未找到存档目录' }}</span>
-      <el-button v-if="store.save" type="primary" :disabled="!store.dirty" @click="saveAll">
-        保存到存档{{ store.dirty ? '（有未保存更改）' : '' }}
-      </el-button>
-    </el-header>
-    <el-main>
-      <el-alert v-if="!store.saveDir" type="warning" title="未自动找到存档目录，请手动选择" :closable="false" show-icon />
-      <el-tabs v-model="tab">
-        <el-tab-pane label="存档" name="slots"><SlotsTab /></el-tab-pane>
-        <el-tab-pane label="资源" name="resources" :disabled="!store.save"><ResourcesTab /></el-tab-pane>
-        <el-tab-pane label="星球" name="planets" :disabled="!store.save"><PlanetsTab /></el-tab-pane>
-        <el-tab-pane label="编队" name="formation" :disabled="!store.save"><FormationTab /></el-tab-pane>
-        <el-tab-pane label="机体 / 飞船" name="units" :disabled="!store.save"><UnitsTab /></el-tab-pane>
-        <el-tab-pane label="驾驶员" name="pilots" :disabled="!store.save"><PilotsTab /></el-tab-pane>
-        <el-tab-pane label="全解锁" name="unlock" :disabled="!store.save"><UnlockTab /></el-tab-pane>
-        <el-tab-pane label="图鉴" name="collection" :disabled="!store.collection"><CollectionTab /></el-tab-pane>
-      </el-tabs>
-    </el-main>
-  </el-container>
+  <el-config-provider :locale="elementLocale">
+    <el-container class="root">
+      <el-header class="header">
+        <span class="title">{{ t('app.title') }}</span>
+        <span class="dir">{{ store.saveDir || t('app.noDir') }}</span>
+        <span class="lang">
+          <button type="button" class="lang-btn" :class="{ on: locale === 'zh' }" @click="switchLang('zh')">
+            {{ t('app.langZh') }}
+          </button>
+          <span class="sep">|</span>
+          <button type="button" class="lang-btn" :class="{ on: locale === 'en' }" @click="switchLang('en')">
+            {{ t('app.langEn') }}
+          </button>
+        </span>
+        <el-button v-if="store.save" type="primary" :disabled="!store.dirty" @click="saveAll">
+          {{ store.dirty ? t('app.saveDirty') : t('app.save') }}
+        </el-button>
+      </el-header>
+      <el-main>
+        <el-alert
+          v-if="!store.saveDir"
+          type="warning"
+          :title="t('app.pickDirAlert')"
+          :closable="false"
+          show-icon
+        />
+        <el-tabs v-model="tab">
+          <el-tab-pane :label="t('tabs.slots')" name="slots"><SlotsTab /></el-tab-pane>
+          <el-tab-pane :label="t('tabs.resources')" name="resources" :disabled="!store.save"><ResourcesTab /></el-tab-pane>
+          <el-tab-pane :label="t('tabs.planets')" name="planets" :disabled="!store.save"><PlanetsTab /></el-tab-pane>
+          <el-tab-pane :label="t('tabs.formation')" name="formation" :disabled="!store.save"><FormationTab /></el-tab-pane>
+          <el-tab-pane :label="t('tabs.units')" name="units" :disabled="!store.save"><UnitsTab /></el-tab-pane>
+          <el-tab-pane :label="t('tabs.pilots')" name="pilots" :disabled="!store.save"><PilotsTab /></el-tab-pane>
+          <el-tab-pane :label="t('tabs.unlock')" name="unlock" :disabled="!store.save"><UnlockTab /></el-tab-pane>
+          <el-tab-pane :label="t('tabs.collection')" name="collection" :disabled="!store.collection"><CollectionTab /></el-tab-pane>
+        </el-tabs>
+      </el-main>
+    </el-container>
+  </el-config-provider>
 </template>
 
 <style scoped>
@@ -53,4 +75,10 @@ async function saveAll(): Promise<void> {
 .header { display: flex; align-items: center; gap: 16px; }
 .title { font-weight: 700; font-size: 18px; }
 .dir { flex: 1; color: #909399; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lang { display: flex; align-items: center; gap: 6px; font-size: 13px; flex-shrink: 0; }
+.lang-btn {
+  border: none; background: transparent; cursor: pointer; color: #909399; padding: 0;
+}
+.lang-btn.on { color: #409eff; font-weight: 600; }
+.sep { color: #dcdfe6; }
 </style>

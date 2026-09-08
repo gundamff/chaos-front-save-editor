@@ -11,6 +11,7 @@
 ### Docs
 
 - English `README.en.md`, `CHANGELOG.en.md`, and `docs/RELEASE.en.md`
+- In-app Chinese / English UI (follows system locale by default)
 
 ## [1.1.0] - 2026-09-08
 

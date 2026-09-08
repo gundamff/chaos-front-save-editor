@@ -4,15 +4,16 @@ import { ElMessage } from 'element-plus'
 import { useSaveStore } from '../stores/saveStore'
 import { gameData } from '../../../common/gameData'
 import { gameImage } from '../lib/images'
+import { t } from '../i18n'
 
 const store = useSaveStore()
 const unlocked = computed(() => new Set(store.save?.unlockedUnitTypes ?? []))
 const unlockedItems = computed(() => new Set(store.save?.unlockedItems ?? []))
 
 const groups = computed(() => [
-  { title: '战舰', list: gameData.unitTypes.filter((t) => t.kind === 1) },
-  { title: '大型机体', list: gameData.unitTypes.filter((t) => t.kind === 2 && t.size === 1) },
-  { title: '小型机体', list: gameData.unitTypes.filter((t) => t.kind === 2 && t.size === 0) }
+  { title: t('unlock.warships'), list: gameData.unitTypes.filter((u) => u.kind === 1) },
+  { title: t('unlock.large'), list: gameData.unitTypes.filter((u) => u.kind === 2 && u.size === 1) },
+  { title: t('unlock.small'), list: gameData.unitTypes.filter((u) => u.kind === 2 && u.size === 0) }
 ])
 
 function toggleType(id: number, on: boolean): void {
@@ -23,9 +24,9 @@ function toggleType(id: number, on: boolean): void {
   store.markDirty()
 }
 function selectAll(on: boolean): void {
-  store.save!.setUnlockedUnitTypes(on ? gameData.unitTypes.map((t) => t.id) : [])
+  store.save!.setUnlockedUnitTypes(on ? gameData.unitTypes.map((u) => u.id) : [])
   store.markDirty()
-  ElMessage.success(on ? '已解锁全部机型' : '已清空解锁')
+  ElMessage.success(on ? t('unlock.unlockedAll') : t('unlock.cleared'))
 }
 function toggleItem(id: number, on: boolean): void {
   const arr = store.save!.unlockedItems
@@ -37,31 +38,37 @@ function toggleItem(id: number, on: boolean): void {
 function unlockAllItems(): void {
   store.save!.unlockAllItems(gameData)
   store.markDirty()
-  ElMessage.success('已解锁全部装备')
+  ElMessage.success(t('unlock.itemsUnlocked'))
 }
 </script>
 
 <template>
   <div>
     <div class="toolbar">
-      <el-button type="primary" @click="selectAll(true)">解锁全部机型</el-button>
-      <el-button @click="selectAll(false)">全部取消</el-button>
+      <el-button type="primary" @click="selectAll(true)">{{ t('unlock.unlockAllTypes') }}</el-button>
+      <el-button @click="selectAll(false)">{{ t('unlock.clearAll') }}</el-button>
       <el-divider direction="vertical" />
-      <el-button @click="unlockAllItems()">解锁全部装备</el-button>
+      <el-button @click="unlockAllItems()">{{ t('unlock.unlockAllItems') }}</el-button>
     </div>
 
     <div v-for="g in groups" :key="g.title" class="group">
-      <h4>{{ g.title }}（{{ g.list.filter((t) => unlocked.has(t.id)).length }}/{{ g.list.length }}）</h4>
+      <h4>{{ g.title }}（{{ g.list.filter((u) => unlocked.has(u.id)).length }}/{{ g.list.length }}）</h4>
       <div class="grid">
-        <div v-for="t in g.list" :key="t.id" class="cell" :class="{ on: unlocked.has(t.id) }" @click="toggleType(t.id, !unlocked.has(t.id))">
-          <img :src="gameImage(`unit-${t.id}`)" />
-          <span class="name">{{ t.name }}</span>
+        <div
+          v-for="u in g.list"
+          :key="u.id"
+          class="cell"
+          :class="{ on: unlocked.has(u.id) }"
+          @click="toggleType(u.id, !unlocked.has(u.id))"
+        >
+          <img :src="gameImage(`unit-${u.id}`)" />
+          <span class="name">{{ u.name }}</span>
         </div>
       </div>
     </div>
 
     <div class="group">
-      <h4>装备（{{ unlockedItems.size }}/{{ gameData.items.length }}）</h4>
+      <h4>{{ t('unlock.items', unlockedItems.size, gameData.items.length) }}</h4>
       <el-checkbox-group class="item-row" :model-value="[...unlockedItems]">
         <el-checkbox v-for="it in gameData.items" :key="it.id" :value="it.id" @change="(on: boolean) => toggleItem(it.id, on)">
           {{ it.name }}

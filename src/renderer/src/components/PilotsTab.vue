@@ -5,6 +5,7 @@ import { useSaveStore } from '../stores/saveStore'
 import { characterById, gameData } from '../../../common/gameData'
 import { CHARACTER_MAX_EXP, characterLevelForExp } from '../../../common/level'
 import { gameImage } from '../lib/images'
+import { t } from '../i18n'
 
 const store = useSaveStore()
 const pilots = computed(() =>
@@ -27,32 +28,32 @@ function setExp(index: number, v: number | undefined): void {
 function maxAll(): void {
   const n = store.save!.maxAllPilots()
   store.markDirty()
-  ElMessage.success(`已满级 ${n} 人`)
+  ElMessage.success(t('pilots.maxed', n))
 }
 </script>
 
 <template>
   <div>
     <div class="toolbar">
-      <el-button type="primary" @click="maxAll()">全部 Lv10</el-button>
-      <span class="count">共 {{ pilots.length }} 人</span>
+      <el-button type="primary" @click="maxAll()">{{ t('pilots.maxAll') }}</el-button>
+      <span class="count">{{ t('pilots.count', pilots.length) }}</span>
     </div>
     <el-table :data="pilots" size="small" max-height="560">
-      <el-table-column label="头像" width="64">
+      <el-table-column :label="t('pilots.portrait')" width="64">
         <template #default="{ row }">
           <img :src="gameImage(`portrait-${row.id}`)" class="avatar" />
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="姓名" min-width="120" />
-      <el-table-column label="等级" width="90">
+      <el-table-column prop="name" :label="t('pilots.name')" min-width="120" />
+      <el-table-column :label="t('pilots.level')" width="90">
         <template #default="{ row }"><el-tag>Lv{{ levelOf(row.exp) }}</el-tag></template>
       </el-table-column>
-      <el-table-column label="经验" width="220">
+      <el-table-column :label="t('pilots.exp')" width="220">
         <template #default="{ row }">
-          <el-input-number size="small" :model-value="row.exp" :min="0" :max="999999" :step="100" controls-position="right" @change="(v) => setExp(row.index, v)" />
+          <el-input-number size="small" :model-value="row.exp" :min="0" :max="CHARACTER_MAX_EXP" :step="100" controls-position="right" @change="(v) => setExp(row.index, v)" />
         </template>
       </el-table-column>
-      <el-table-column label="进度">
+      <el-table-column :label="t('pilots.progress')">
         <template #default="{ row }">
           <el-progress :percentage="Math.min(100, Math.round((row.exp / CHARACTER_MAX_EXP) * 100))" :stroke-width="10" />
         </template>
@@ -64,5 +65,5 @@ function maxAll(): void {
 <style scoped>
 .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
 .count { color: #909399; }
-.avatar { width: 44px; height: 44px; object-fit: cover; }
+.avatar { width: 36px; height: 36px; image-rendering: pixelated; }
 </style>

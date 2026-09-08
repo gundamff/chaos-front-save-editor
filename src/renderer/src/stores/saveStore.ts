@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { SaveData, loadCollectionText, serializeCollectionText, type CollectionSnapshot } from '../../../common/saveModel'
 import type { BackupInfo, SlotInfo, WriteResult } from '../../../common/ipc'
+import { t } from '../i18n'
 
 export const useSaveStore = defineStore('save', () => {
   const saveDir = ref('')
@@ -48,7 +49,7 @@ export const useSaveStore = defineStore('save', () => {
       }
       backups.value = await window.api.listBackups(saveDir.value, slot)
     } catch (e) {
-      ElMessage.error('载入失败: ' + (e instanceof Error ? e.message : String(e)))
+      ElMessage.error(t('store.loadFail', e instanceof Error ? e.message : String(e)))
     }
   }
 
@@ -73,7 +74,7 @@ export const useSaveStore = defineStore('save', () => {
     if (currentSlot.value === null) return
     const r = await window.api.restoreBackup(saveDir.value, currentSlot.value, name)
     if (r.ok) await loadSlot(currentSlot.value)
-    else ElMessage.error('还原失败: ' + r.error)
+    else ElMessage.error(t('store.restoreFail', r.error ?? ''))
   }
 
   async function deleteBackup(name: string): Promise<void> {
@@ -81,9 +82,9 @@ export const useSaveStore = defineStore('save', () => {
     const r = await window.api.deleteBackup(saveDir.value, name)
     if (r.ok) {
       backups.value = await window.api.listBackups(saveDir.value, currentSlot.value)
-      ElMessage.success('备份已删除')
+      ElMessage.success(t('store.backupDeleted'))
     } else {
-      ElMessage.error('删除失败: ' + r.error)
+      ElMessage.error(t('store.deleteFail', r.error ?? ''))
     }
   }
 

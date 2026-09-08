@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useSaveStore } from '../stores/saveStore'
 import { gameData } from '../../../common/gameData'
+import { t } from '../i18n'
 
 const store = useSaveStore()
 const save = computed(() => store.save)
@@ -25,20 +26,22 @@ function maxResources(): void {
   })
 }
 function medalLabel(i: number): string {
-  return `勋章 · ${save.value!.factionLabel(gameData, i)}`
+  const name = save.value!.factionLabel(gameData, i)
+  return t('resources.medal', name)
 }
 function relLabel(i: number): string {
-  return `关系 · ${save.value!.factionLabel(gameData, i)}`
+  const name = save.value!.factionLabel(gameData, i)
+  return t('resources.relationship', name)
 }
 </script>
 
 <template>
   <div v-if="save">
-    <el-alert type="warning" show-icon :closable="false" title="关系值影响剧情走向，修改可能跳过/触发特定事件" class="warn" />
+    <el-alert type="warning" show-icon :closable="false" :title="t('resources.relWarn')" class="warn" />
     <el-form label-width="220px" style="max-width: 640px">
-      <el-form-item label="信用点"><el-input-number :model-value="save.credit" :min="0" :max="999999999" :step="10000" @change="changeNum((v) => save!.setCredit(v))" /></el-form-item>
-      <el-form-item label="威望"><el-input-number :model-value="save.prestige" :min="0" :max="999999" :step="100" @change="changeNum((v) => save!.setPrestige(v))" /></el-form-item>
-      <el-form-item label="星级"><el-input-number :model-value="save.star" :min="1" :max="6" @change="changeNum((v) => save!.setStar(v))" /></el-form-item>
+      <el-form-item :label="t('resources.credit')"><el-input-number :model-value="save.credit" :min="0" :max="999999999" :step="10000" @change="changeNum((v) => save!.setCredit(v))" /></el-form-item>
+      <el-form-item :label="t('resources.prestige')"><el-input-number :model-value="save.prestige" :min="0" :max="999999" :step="100" @change="changeNum((v) => save!.setPrestige(v))" /></el-form-item>
+      <el-form-item :label="t('resources.star')"><el-input-number :model-value="save.star" :min="1" :max="6" @change="changeNum((v) => save!.setStar(v))" /></el-form-item>
       <el-form-item v-for="i in 4" :key="'medal' + i" :label="medalLabel(i - 1)">
         <el-input-number :model-value="save.medals[i - 1]" :min="0" :max="99999" @change="changeNum((v) => save!.setMedal(i - 1, v))" />
       </el-form-item>
@@ -46,7 +49,7 @@ function relLabel(i: number): string {
         <el-input-number :model-value="save.relationships[i - 1]" :min="0" :max="MAX_REL" @change="changeNum((v) => save!.setRelationship(i - 1, v))" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="maxResources()">一键拉满（信用/威望/星级）</el-button>
+        <el-button type="primary" @click="maxResources()">{{ t('resources.maxAll') }}</el-button>
       </el-form-item>
     </el-form>
   </div>

@@ -179,7 +179,9 @@ describe('SaveData', () => {
   it('setUnitPilot rejects duplicate pilot on another unit', () => {
     const s = SaveData.load(fixture())
     expect(s.units[1].characterId).toBe(85)
-    expect(() => s.setUnitPilot(0, 85)).toThrow(/已被占用/)
+    expect(() => s.setUnitPilot(0, 85)).toThrow(
+      expect.objectContaining({ code: 'PILOT_TAKEN' })
+    )
     s.setUnitPilot(0, 84)
     expect(s.units[0].characterId).toBe(84)
     s.setUnitPilot(0, 0)
@@ -188,9 +190,9 @@ describe('SaveData', () => {
 
   it('deployUnit rejects out-of-range grid', () => {
     const s = SaveData.load(fixture())
-    expect(() => s.deployUnit(0, 0, 0)).toThrow(/越界/)
-    expect(() => s.deployUnit(0, 5, 0)).toThrow(/越界/)
-    expect(() => s.deployUnit(0, 1, 6)).toThrow(/越界/)
+    expect(() => s.deployUnit(0, 0, 0)).toThrow(expect.objectContaining({ code: 'FORMATION_OUT_OF_RANGE' }))
+    expect(() => s.deployUnit(0, 5, 0)).toThrow(expect.objectContaining({ code: 'FORMATION_OUT_OF_RANGE' }))
+    expect(() => s.deployUnit(0, 1, 6)).toThrow(expect.objectContaining({ code: 'FORMATION_OUT_OF_RANGE' }))
   })
 })
 

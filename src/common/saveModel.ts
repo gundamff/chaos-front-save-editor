@@ -65,6 +65,17 @@ export type PlanetStatKey = 'economics' | 'industry' | 'defense' | 'stability'
 export const FORMATION_ROWS = 4
 export const FORMATION_COLS = 6
 
+export class SaveError extends Error {
+  readonly code: string
+  readonly args: Array<string | number>
+  constructor(code: string, args: Array<string | number> = [], message?: string) {
+    super(message ?? code)
+    this.name = 'SaveError'
+    this.code = code
+    this.args = args
+  }
+}
+
 const REQUIRED_KEYS = ['PlayerUnits', 'PlayerCharacters', 'PlayerArmyId', 'PlayerCredit'] as const
 
 export class SaveData {
@@ -227,7 +238,7 @@ export class SaveData {
 
   private assertFormationSlot(row: number, col: number): void {
     if (row < 1 || row > FORMATION_ROWS || col < 0 || col >= FORMATION_COLS) {
-      throw new Error(`编队坐标越界: [${row},${col}]（有效 row=1..${FORMATION_ROWS}, col=0..${FORMATION_COLS - 1}）`)
+      throw new SaveError('FORMATION_OUT_OF_RANGE', [row, col, FORMATION_ROWS, FORMATION_COLS - 1])
     }
   }
 
@@ -236,7 +247,7 @@ export class SaveData {
     this.assertFormationSlot(row, col)
     const units = this.units
     const u = units[unitIndex]
-    if (!u) throw new Error(`机体下标无效: ${unitIndex}`)
+    if (!u) throw new SaveError('UNIT_INDEX', [unitIndex])
     const other = this.unitAt(row, col)
     const from = [...(u.number ?? [0, 0])]
     if (other === unitIndex) return
@@ -248,7 +259,7 @@ export class SaveData {
 
   undeployUnit(unitIndex: number): void {
     const u = this.units[unitIndex]
-    if (!u) throw new Error(`机体下标无效: ${unitIndex}`)
+    if (!u) throw new SaveError('UNIT_INDEX', [unitIndex])
     u.number = [0, 0]
   }
 
@@ -256,11 +267,11 @@ export class SaveData {
   setUnitPilot(unitIndex: number, characterId: number): void {
     const units = this.units
     const u = units[unitIndex]
-    if (!u) throw new Error(`机体下标无效: ${unitIndex}`)
+    if (!u) throw new SaveError('UNIT_INDEX', [unitIndex])
     const cid = Math.max(0, Math.round(characterId))
     if (cid > 0) {
       const taken = units.findIndex((x, i) => i !== unitIndex && x.characterId === cid)
-      if (taken >= 0) throw new Error(`驾驶员已被占用（机体 #${taken}）`)
+      if (taken >= 0) throw new SaveError('PILOT_TAKEN', [taken])
     }
     u.characterId = cid
   }

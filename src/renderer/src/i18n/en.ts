@@ -1,0 +1,152 @@
+import type { MessageTree } from './zh'
+
+export const en: MessageTree = {
+  app: {
+    title: 'Chaos Front Save Editor',
+    noDir: 'Save folder not found',
+    save: 'Save to file',
+    saveDirty: 'Save to file (unsaved changes)',
+    pickDirAlert: 'Save folder was not detected. Please choose one manually.',
+    saved: 'Saved (backup {0})',
+    langZh: '中文',
+    langEn: 'English'
+  },
+  tabs: {
+    slots: 'Saves',
+    resources: 'Resources',
+    planets: 'Planets',
+    formation: 'Formation',
+    units: 'Units / Ships',
+    pilots: 'Pilots',
+    unlock: 'Unlock',
+    collection: 'Collection'
+  },
+  slots: {
+    chooseDir: 'Choose save folder',
+    refresh: 'Refresh',
+    slot: 'Slot',
+    slotN: 'Slot {0}',
+    army: 'Army',
+    empty: 'Empty',
+    leader: 'Commander',
+    day: 'Day',
+    unitCount: 'Units',
+    saveTime: 'Saved at',
+    actions: 'Actions',
+    load: 'Load',
+    backups: 'Backups (slot {0})',
+    backupFile: 'Backup file',
+    time: 'Time',
+    restore: 'Restore',
+    restoreConfirm: 'Restore this backup? The current file will be backed up first.',
+    delete: 'Delete',
+    deleteConfirm: 'Delete this backup permanently?'
+  },
+  resources: {
+    relWarn: 'Relationship values affect the story. Editing may skip or trigger events.',
+    credit: 'Credits',
+    prestige: 'Prestige',
+    star: 'Star rating',
+    medal: 'Medal · {0}',
+    relationship: 'Relation · {0}',
+    maxAll: 'Max credits / prestige / stars',
+    factionFallback: 'Faction {0}'
+  },
+  planets: {
+    warn: 'Changing ownership syncs FactionData.planets; careless edits may break the map or story.',
+    maxAll: 'Max all current stats',
+    count: '{0} planets',
+    planet: 'Planet',
+    planetFallback: 'Planet #{0}',
+    faction: 'Owner',
+    factionFallback: 'Faction {0}',
+    economics: 'Economy',
+    industry: 'Industry',
+    defense: 'Defense',
+    stability: 'Stability',
+    maxTune: 'Cap tweaks',
+    econShort: 'Eco',
+    indShort: 'Ind'
+  },
+  formation: {
+    hint: 'Select a unit (grid or bench), then click a cell to deploy/swap. One pilot cannot crew two units.',
+    undeploy: 'Undeploy selected',
+    selected: 'Selected: {0} · {1}',
+    pilot: 'Pilot',
+    noPilot: '(No pilot)',
+    col: 'Col {0}',
+    row: 'Row {0}',
+    empty: 'Empty',
+    bench: 'Bench ({0})',
+    allDeployed: 'All units deployed',
+    none: '—'
+  },
+  units: {
+    unknownType: 'Unknown #{0}',
+    maxed: 'Maxed {0} units',
+    added: 'Added',
+    warships: 'Warships',
+    large: 'Large mechs',
+    small: 'Small mechs',
+    maxAll: 'All +6',
+    add: 'Add unit',
+    count: '{0} units',
+    name: 'Name',
+    custom: 'Custom',
+    pilot: 'Pilot',
+    exp: 'XP',
+    items: 'Gear',
+    actions: 'Actions',
+    removeConfirm: 'Delete this unit? Gear returns to inventory.',
+    remove: 'Delete',
+    addTitle: 'Add unit',
+    model: 'Model',
+    modelPlaceholder: 'Select model (searchable)',
+    initLevel: 'Starting level',
+    cancel: 'Cancel',
+    confirmAdd: 'Add'
+  },
+  pilots: {
+    maxed: 'Maxed {0} pilots',
+    maxAll: 'All Lv10',
+    count: '{0} pilots',
+    portrait: 'Portrait',
+    name: 'Name',
+    level: 'Level',
+    exp: 'XP',
+    progress: 'Progress'
+  },
+  unlock: {
+    unlockedAll: 'All unit types unlocked',
+    cleared: 'Unlocks cleared',
+    itemsUnlocked: 'All items unlocked',
+    unlockAllTypes: 'Unlock all units',
+    clearAll: 'Clear all',
+    unlockAllItems: 'Unlock all gear',
+    warships: 'Warships',
+    large: 'Large mechs',
+    small: 'Small mechs',
+    items: 'Gear ({0}/{1})'
+  },
+  collection: {
+    maxed: 'Collection maxed (remember to save)',
+    saved: 'Collection saved (backup {0})',
+    maxAll: 'Max endings + collection',
+    saveFile: 'Save collection file',
+    endingsCount: 'Endings {0}/{1}',
+    warn: 'Writes collection.cf (independent of save slots). Units max at +6, members at Lv10.',
+    endings: 'Endings',
+    endingN: 'Ending {0}'
+  },
+  store: {
+    loadFail: 'Load failed: {0}',
+    restoreFail: 'Restore failed: {0}',
+    backupDeleted: 'Backup deleted',
+    deleteFail: 'Delete failed: {0}'
+  },
+  error: {
+    FORMATION_OUT_OF_RANGE: 'Formation out of range: [{0},{1}] (row=1..{2}, col=0..{3})',
+    UNIT_INDEX: 'Invalid unit index: {0}',
+    PILOT_TAKEN: 'Pilot already assigned (unit #{0})'
+  }
+}

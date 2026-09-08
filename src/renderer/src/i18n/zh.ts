@@ -1,0 +1,152 @@
+export type MessageTree = { [key: string]: string | MessageTree }
+
+export const zh: MessageTree = {
+  app: {
+    title: 'Chaos Front 存档修改器',
+    noDir: '未找到存档目录',
+    save: '保存到存档',
+    saveDirty: '保存到存档（有未保存更改）',
+    pickDirAlert: '未自动找到存档目录，请手动选择',
+    saved: '已保存（备份 {0}）',
+    langZh: '中文',
+    langEn: 'English'
+  },
+  tabs: {
+    slots: '存档',
+    resources: '资源',
+    planets: '星球',
+    formation: '编队',
+    units: '机体 / 飞船',
+    pilots: '驾驶员',
+    unlock: '全解锁',
+    collection: '图鉴'
+  },
+  slots: {
+    chooseDir: '选择存档目录',
+    refresh: '刷新',
+    slot: '槽位',
+    slotN: '槽 {0}',
+    army: '军团',
+    empty: '空',
+    leader: '指挥官',
+    day: '天数',
+    unitCount: '机体数',
+    saveTime: '保存时间',
+    actions: '操作',
+    load: '载入',
+    backups: '备份还原（当前槽 {0}）',
+    backupFile: '备份文件',
+    time: '时间',
+    restore: '还原',
+    restoreConfirm: '确认还原该备份？当前文件将先自动备份',
+    delete: '删除',
+    deleteConfirm: '确认删除该备份？不可恢复'
+  },
+  resources: {
+    relWarn: '关系值影响剧情走向，修改可能跳过/触发特定事件',
+    credit: '信用点',
+    prestige: '威望',
+    star: '星级',
+    medal: '勋章 · {0}',
+    relationship: '关系 · {0}',
+    maxAll: '一键拉满（信用/威望/星级）',
+    factionFallback: '势力{0}'
+  },
+  planets: {
+    warn: '修改所属势力会同步 FactionData.planets；乱改可能影响地图与剧情',
+    maxAll: '全部拉满（当前四维）',
+    count: '共 {0} 颗',
+    planet: '星球',
+    planetFallback: '星球#{0}',
+    faction: '所属势力',
+    factionFallback: '势力{0}',
+    economics: '经济',
+    industry: '工业',
+    defense: '防御',
+    stability: '稳定',
+    maxTune: '上限微调',
+    econShort: '经',
+    indShort: '工'
+  },
+  formation: {
+    hint: '先点选机体（网格或未上阵列表），再点目标格子上阵/换位；同一驾驶员不能开两台机',
+    undeploy: '下阵选中',
+    selected: '已选：{0} · {1}',
+    pilot: '驾驶员',
+    noPilot: '（无驾驶员）',
+    col: '列 {0}',
+    row: '行 {0}',
+    empty: '空',
+    bench: '未上阵（{0}）',
+    allDeployed: '全部已上阵',
+    none: '—'
+  },
+  units: {
+    unknownType: '未知机型#{0}',
+    maxed: '已拉满 {0} 台',
+    added: '已添加',
+    warships: '战舰',
+    large: '大型机体',
+    small: '小型机体',
+    maxAll: '全部 +6',
+    add: '添加机体',
+    count: '共 {0} 台',
+    name: '名称',
+    custom: '改装',
+    pilot: '驾驶员',
+    exp: '经验',
+    items: '装备',
+    actions: '操作',
+    removeConfirm: '确认删除该机体？（装备归还仓库）',
+    remove: '删除',
+    addTitle: '添加机体',
+    model: '型号',
+    modelPlaceholder: '选择型号（可搜索）',
+    initLevel: '初始等级',
+    cancel: '取消',
+    confirmAdd: '添加'
+  },
+  pilots: {
+    maxed: '已满级 {0} 人',
+    maxAll: '全部 Lv10',
+    count: '共 {0} 人',
+    portrait: '头像',
+    name: '姓名',
+    level: '等级',
+    exp: '经验',
+    progress: '进度'
+  },
+  unlock: {
+    unlockedAll: '已解锁全部机型',
+    cleared: '已清空解锁',
+    itemsUnlocked: '已解锁全部装备',
+    unlockAllTypes: '解锁全部机型',
+    clearAll: '全部取消',
+    unlockAllItems: '解锁全部装备',
+    warships: '战舰',
+    large: '大型机体',
+    small: '小型机体',
+    items: '装备（{0}/{1}）'
+  },
+  collection: {
+    maxed: '图鉴已拉满（记得点保存）',
+    saved: '图鉴已写入（备份 {0}）',
+    maxAll: '一键拉满（结局 + 收藏度）',
+    saveFile: '保存图鉴文件',
+    endingsCount: '结局 {0}/{1}',
+    warn: '图鉴写入独立文件 collection.cf，与存档槽互不影响；机体收藏拉满为+6、成员拉满为Lv10',
+    endings: '结局',
+    endingN: '结局 {0}'
+  },
+  store: {
+    loadFail: '载入失败: {0}',
+    restoreFail: '还原失败: {0}',
+    backupDeleted: '备份已删除',
+    deleteFail: '删除失败: {0}'
+  },
+  error: {
+    FORMATION_OUT_OF_RANGE: '编队坐标越界: [{0},{1}]（有效 row=1..{2}, col=0..{3}）',
+    UNIT_INDEX: '机体下标无效: {0}',
+    PILOT_TAKEN: '驾驶员已被占用（机体 #{0}）'
+  }
+}
