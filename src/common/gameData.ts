@@ -4,19 +4,44 @@ import { UNIT_MAX_LEVEL } from './level'
 export interface UnitTypeEntry {
   id: number
   name: string
+  info?: string
   kind: number
   size: number
   levelType: number
   model: number
+  hp?: number
+  en?: number
+  agility?: number
+  limit?: number
+  move?: number
+  hangarS?: number
+  hangarL?: number
+  weapon1?: number
+  weapon2?: number
+  shield?: number
+  ability1?: number
+  ability2?: number
+  ability3?: number
 }
 export interface CharacterEntry {
   id: number
   name: string
+  info?: string
   portrait: number
+  joinLv?: number
+  shoot?: number
+  maneuver?: number
+  command?: number
+  sp?: number
+  melee?: number
+  reaction?: number
+  talents?: number[]
+  skills?: number[]
 }
 export interface ItemEntry {
   id: number
   name: string
+  info?: string
   icon: number
 }
 
@@ -31,6 +56,43 @@ export interface PlanetEntry {
   name: string
 }
 
+export interface SkillEntry {
+  id: number
+  name: string
+  info: string
+  type: number
+  sp: number
+}
+
+export interface TalentEntry {
+  id: number
+  name: string
+  infos: string[]
+}
+
+export interface AbilityEntry {
+  id: number
+  name: string
+  info: string
+  icon: number
+  type: number
+  en: number
+  range: number
+}
+
+export interface WeaponEntry {
+  id: number
+  name: string
+  info: string
+  icon: number
+  en: number
+  damage: number
+  hit: number
+  rangeMin: number
+  rangeMax: number
+  count: number
+}
+
 export interface GameData {
   unitTypes: UnitTypeEntry[]
   characters: CharacterEntry[]
@@ -39,9 +101,13 @@ export interface GameData {
   planets: PlanetEntry[]
   levelTables: Record<string, number[]>
   unitMaxExp: Record<string, number>
+  skills: SkillEntry[]
+  talents: TalentEntry[]
+  abilities: AbilityEntry[]
+  weapons: WeaponEntry[]
 }
 
-/** 提取脚本产物（见 scripts/extract-game-data.mjs）；Task 7 前为占位空结构 */
+/** 提取脚本产物（见 scripts/extract-game-data.mjs） */
 export const gameData = data as GameData
 
 export const ALL_UNIT_TYPE_IDS: number[] = gameData.unitTypes.map((u) => u.id)
@@ -64,6 +130,22 @@ export function armyById(gd: GameData, id: number): ArmyEntry | undefined {
 
 export function planetById(gd: GameData, id: number): PlanetEntry | undefined {
   return gd.planets.find((p) => p.id === id)
+}
+
+export function skillById(gd: GameData, id: number): SkillEntry | undefined {
+  return gd.skills.find((s) => s.id === id)
+}
+
+export function talentById(gd: GameData, id: number): TalentEntry | undefined {
+  return gd.talents.find((t) => t.id === id)
+}
+
+export function abilityById(gd: GameData, id: number): AbilityEntry | undefined {
+  return gd.abilities.find((a) => a.id === id)
+}
+
+export function weaponById(gd: GameData, id: number): WeaponEntry | undefined {
+  return gd.weapons.find((w) => w.id === id)
 }
 
 export function levelTableOf(gd: GameData, levelType: number): number[] {

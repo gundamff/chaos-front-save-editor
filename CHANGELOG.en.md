@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-08
+
+### Added
+
+- **Formation** drag-and-drop deploy/swap/undeploy; detail pane shows unit stats, weapons/abilities, gear, and pilot attributes/skills/talents (from extracted game tables)
+- **Formation** UI restyled as a card layout (unit/pilot dual portraits + large detail art) in the same light theme as other tabs
+- Bench split into undeployed units / free pilots with drag-assign; click unit vs pilot for separate details
+- Equip/unequip carried items in formation detail (ships 4 slots / mechs 2 slots; syncs `PlayerItems`)
+- Deploy without a pilot first, then assign on the grid (still validated on save); header and Saves tab show the slot being edited
+
 ## [1.3.0] - 2026-09-08
 
 ### Added

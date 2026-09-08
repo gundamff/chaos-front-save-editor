@@ -65,6 +65,14 @@ export type PlanetStatKey = 'economics' | 'industry' | 'defense' | 'stability'
 export const FORMATION_ROWS = 4
 export const FORMATION_COLS = 6
 
+/** 战舰 kind=1：4 槽；机体等：2 槽 */
+export const SHIP_ITEM_SLOTS = 4
+export const MECH_ITEM_SLOTS = 2
+
+export function itemSlotsForUnitType(gd: GameData, unitTypeId: number): number {
+  return unitTypeById(gd, unitTypeId)?.kind === 1 ? SHIP_ITEM_SLOTS : MECH_ITEM_SLOTS
+}
+
 export class SaveError extends Error {
   readonly code: string
   readonly args: Array<string | number>
@@ -93,7 +101,21 @@ export class SaveData {
     return new SaveData(doc)
   }
 
+  /** 已上阵机体必须有驾驶员，否则游戏会崩溃 */
+  assertDeployedHavePilots(): void {
+    const bad = this.units
+      .map((u, i) => ({ u, i }))
+      .filter(({ u }) => !this.isUndeployed(u) && !(u.characterId > 0))
+    if (bad.length > 0) {
+      throw new SaveError(
+        'DEPLOYED_NO_PILOT',
+        [bad.map(({ i }) => i).join(',')]
+      )
+    }
+  }
+
   serialize(): string {
+    this.assertDeployedHavePilots()
     return stringifyEs3(this.doc)
   }
 
@@ -222,6 +244,45 @@ export class SaveData {
     return getField<number[]>(this.doc, 'PlayerItems')
   }
 
+  /** 仓库中某道具数量（itemId 1-based） */
+  inventoryCount(itemId: number): number {
+    if (itemId <= 0) return 0
+    return this.docPlayerItems()[itemId - 1] ?? 0
+  }
+
+  /** 从仓库装到机体；满槽或库存不足则拒绝。战舰 4 槽、机体 2 槽。 */
+  equipItem(unitIndex: number, itemId: number, gd: GameData): void {
+    const u = this.units[unitIndex]
+    if (!u) throw new SaveError('UNIT_INDEX', [unitIndex])
+    const id = Math.round(itemId)
+    if (id <= 0) throw new SaveError('ITEM_ID', [itemId])
+    if (!u.items) u.items = []
+    const cap = itemSlotsForUnitType(gd, u.unitType)
+    if (u.items.filter((x) => x > 0).length >= cap) {
+      throw new SaveError('ITEM_FULL', [cap])
+    }
+    const stock = this.docPlayerItems()
+    const idx = id - 1
+    if ((stock[idx] ?? 0) <= 0) throw new SaveError('ITEM_EMPTY', [id])
+    stock[idx] = (stock[idx] ?? 0) - 1
+    u.items.push(id)
+  }
+
+  /** 卸下机体 items[slot] 归还仓库 */
+  unequipItem(unitIndex: number, slot: number): void {
+    const u = this.units[unitIndex]
+    if (!u) throw new SaveError('UNIT_INDEX', [unitIndex])
+    if (!u.items || slot < 0 || slot >= u.items.length) throw new SaveError('ITEM_SLOT', [slot])
+    const id = u.items[slot]
+    if (!(id > 0)) {
+      u.items.splice(slot, 1)
+      return
+    }
+    const stock = this.docPlayerItems()
+    stock[id - 1] = (stock[id - 1] ?? 0) + 1
+    u.items.splice(slot, 1)
+  }
+
   get units(): UnitEntry[] {
     return getField<UnitEntry[]>(this.doc, 'PlayerUnits')
   }
@@ -242,7 +303,7 @@ export class SaveData {
     }
   }
 
-  /** 将机体部署到格子；目标已有机体则交换站位（含与未上阵交换） */
+  /** 将机体部署到格子；目标已有机体则交换站位（含与未上阵交换）。允许暂无驾驶员，写入存档前由 serialize 校验。 */
   deployUnit(unitIndex: number, row: number, col: number): void {
     this.assertFormationSlot(row, col)
     const units = this.units
@@ -263,7 +324,7 @@ export class SaveData {
     u.number = [0, 0]
   }
 
-  /** 分配驾驶员；characterId>0 且已被其他机体占用则拒绝 */
+  /** 分配驾驶员；characterId>0 且已被其他机体占用则拒绝；已上阵不可清空驾驶员 */
   setUnitPilot(unitIndex: number, characterId: number): void {
     const units = this.units
     const u = units[unitIndex]
@@ -272,6 +333,8 @@ export class SaveData {
     if (cid > 0) {
       const taken = units.findIndex((x, i) => i !== unitIndex && x.characterId === cid)
       if (taken >= 0) throw new SaveError('PILOT_TAKEN', [taken])
+    } else if (!this.isUndeployed(u)) {
+      throw new SaveError('DEPLOYED_NO_PILOT', [unitIndex])
     }
     u.characterId = cid
   }

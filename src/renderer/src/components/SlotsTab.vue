@@ -13,11 +13,25 @@ onMounted(async () => {
 
 <template>
   <div>
+    <el-alert
+      v-if="store.save && store.currentSlot !== null"
+      type="success"
+      :closable="false"
+      show-icon
+      class="current"
+      :title="t('app.editing', store.currentSlot, store.save.armyName || '—', store.save.day, store.save.leaderName || '—')"
+    />
     <div class="toolbar">
       <el-button @click="store.chooseDir()">{{ t('slots.chooseDir') }}</el-button>
       <el-button @click="store.refreshSlots()">{{ t('slots.refresh') }}</el-button>
     </div>
-    <el-table :data="store.slots" highlight-current-row @current-change="(row) => row?.exists && store.loadSlot(row.slot)">
+    <el-table
+      :data="store.slots"
+      highlight-current-row
+      :current-row-key="store.currentSlot ?? undefined"
+      row-key="slot"
+      @current-change="(row) => row?.exists && store.loadSlot(row.slot)"
+    >
       <el-table-column :label="t('slots.slot')" width="70">
         <template #default="{ row }">{{ t('slots.slotN', row.slot) }}</template>
       </el-table-column>
@@ -59,6 +73,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.current { margin-bottom: 12px; }
 .toolbar { margin-bottom: 12px; display: flex; gap: 8px; }
 .flag { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; }
 </style>

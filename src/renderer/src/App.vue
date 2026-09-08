@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { GITHUB_REPO_URL } from '../../common/ipc'
 import { useSaveStore } from './stores/saveStore'
@@ -17,6 +17,12 @@ const store = useSaveStore()
 const tab = ref('slots')
 const aboutVisible = ref(false)
 const appVersion = ref('')
+
+const editingLabel = computed(() => {
+  const s = store.save
+  if (!s || store.currentSlot === null) return ''
+  return t('app.editing', store.currentSlot, s.armyName || '—', s.day, s.leaderName || '—')
+})
 
 onMounted(async () => {
   store.init()
@@ -43,7 +49,11 @@ async function openGithub(): Promise<void> {
     <el-container class="root">
       <el-header class="header">
         <span class="title">{{ t('app.title') }}</span>
-        <span class="dir">{{ store.saveDir || t('app.noDir') }}</span>
+        <span v-if="editingLabel" class="editing" :title="store.saveDir">
+          <span class="editing-text">{{ editingLabel }}</span>
+          <el-tag v-if="store.dirty" size="small" type="warning" effect="plain">{{ t('app.editingDirty') }}</el-tag>
+        </span>
+        <span v-else class="dir">{{ store.saveDir || t('app.noDir') }}</span>
         <span class="lang">
           <button type="button" class="lang-btn" :class="{ on: locale === 'zh' }" @click="switchLang('zh')">
             {{ t('app.langZh') }}
@@ -93,7 +103,22 @@ async function openGithub(): Promise<void> {
 <style scoped>
 .root { height: 100vh; }
 .header { display: flex; align-items: center; gap: 16px; }
-.title { font-weight: 700; font-size: 18px; }
+.title { font-weight: 700; font-size: 18px; flex-shrink: 0; }
+.editing {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #303133;
+  font-weight: 600;
+}
+.editing-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .dir { flex: 1; color: #909399; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lang { display: flex; align-items: center; gap: 6px; font-size: 13px; flex-shrink: 0; }
 .lang-btn {

@@ -25,4 +25,13 @@ describe('game-data.json（提取产物）', () => {
     expect(gameData.planets).toHaveLength(17)
     expect(gameData.planets[0].name).toBe('马西利亚')
   })
+  it('has skills talents abilities weapons', () => {
+    expect(gameData.skills.length).toBe(65)
+    expect(gameData.talents.length).toBe(56)
+    expect(gameData.abilities.length).toBe(28)
+    expect(gameData.weapons.length).toBe(53)
+    expect(gameData.unitTypes[0].hp).toBe(1000)
+    expect(gameData.characters[0].shoot).toBe(22)
+    expect(gameData.skills[0].name).toBe('努力')
+  })
 })

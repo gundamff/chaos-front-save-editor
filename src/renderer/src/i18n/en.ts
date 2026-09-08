@@ -10,7 +10,9 @@ export const en: MessageTree = {
     saved: 'Saved (backup {0})',
     langZh: '中文',
     langEn: 'English',
-    about: 'About'
+    about: 'About',
+    editing: 'Editing: Slot {0} · {1} · Day {2} · {3}',
+    editingDirty: 'Unsaved'
   },
   about: {
     title: 'About',
@@ -77,7 +79,7 @@ export const en: MessageTree = {
     indShort: 'Ind'
   },
   formation: {
-    hint: 'Select a unit (grid or bench), then click a cell to deploy/swap. One pilot cannot crew two units.',
+    hint: 'Deploy a unit first, then drop a pilot onto it—or assign on the bench before deploying. Deployed units need a pilot before save.',
     undeploy: 'Undeploy selected',
     selected: 'Selected: {0} · {1}',
     pilot: 'Pilot',
@@ -85,9 +87,35 @@ export const en: MessageTree = {
     col: 'Col {0}',
     row: 'Row {0}',
     empty: 'Empty',
-    bench: 'Bench ({0})',
+    bench: 'Bench ({0}) · drop here to undeploy',
+    benchUnits: 'Bench units ({0}) · drag to grid; drop here to undeploy',
+    benchPilots: 'Free pilots ({0}) · drag onto a unit to assign',
+    needPilot: 'Needs a pilot',
+    noFreePilots: 'No free pilots',
+    dropPilotNeedUnit: 'Drop the pilot onto a unit',
     allDeployed: 'All units deployed',
-    none: '—'
+    none: '—',
+    detailEmpty: 'Click a unit icon or pilot portrait for details',
+    focusUnit: 'Unit info',
+    focusPilot: 'Pilot info',
+    secWeapons: 'Weapons',
+    secAbilities: 'Abilities',
+    secItems: 'Equipped items',
+    emptySlot: 'Empty',
+    equip: 'Equip',
+    unequip: 'Unequip',
+    inventory: 'Inventory (click to equip)',
+    secPilot: 'Pilot',
+    secSkills: 'Skills',
+    secTalents: 'Talents',
+    statAgility: 'Agility',
+    statMove: 'Move',
+    statLimit: 'Limit',
+    statShoot: 'Shoot',
+    statManeuver: 'Maneuver',
+    statCommand: 'Command',
+    statMelee: 'Melee',
+    statReaction: 'Reaction'
   },
   units: {
     unknownType: 'Unknown #{0}',
@@ -155,6 +183,11 @@ export const en: MessageTree = {
   error: {
     FORMATION_OUT_OF_RANGE: 'Formation out of range: [{0},{1}] (row=1..{2}, col=0..{3})',
     UNIT_INDEX: 'Invalid unit index: {0}',
-    PILOT_TAKEN: 'Pilot already assigned (unit #{0})'
+    PILOT_TAKEN: 'Pilot already assigned (unit #{0})',
+    DEPLOYED_NO_PILOT: 'Deployed unit(s) missing pilot (#{0}); assign a pilot before saving or the game will crash',
+    ITEM_FULL: 'Item slots full (max {0}; ships 4 / mechs 2)',
+    ITEM_EMPTY: 'No stock of item id {0} in inventory',
+    ITEM_ID: 'Invalid item id: {0}',
+    ITEM_SLOT: 'Invalid item slot: {0}'
   }
 }

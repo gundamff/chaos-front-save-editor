@@ -6,6 +6,7 @@
  *     --ripper "C:\path\AssetRipper.GUI.Free.exe" --out .
  * 可选:
  *   --export <dir>  复用已有的 AssetRipper 导出目录（跳过导出，仍需 --ripper 或可省略）
+ *   --json-only     只更新 game-data.json（不跑 AssetRipper / 不裁图）
  * Phase1 数据: 直接从 resources.assets 抠 TextAsset XML（无需 AssetRipper）
  * Phase2 图像: AssetRipper headless 导出后按 Sprite 矩形裁切
  */
@@ -35,14 +36,41 @@ const tables = {
   character: extractXml('<CharacterData>'),
   item: extractXml('<ItemData>'),
   language: extractXml('<LanguageData>'),
-  army: extractXml('<ArmyData>')
+  army: extractXml('<ArmyData>'),
+  skill: extractXml('<SkillData>'),
+  talent: extractXml('<TalentData>'),
+  ability: extractXml('<AbilityData>'),
+  weapon: extractXml('<WeaponData>')
 }
 
 const lang = parseXmlItems(tables.language).map((attrs) => xmlUnescape(attrs.CN ?? ''))
+function langAt(id) {
+  const n = num(id)
+  if (n <= 0) return ''
+  return lang[n - 1] ?? ''
+}
 
 const unitTypes = parseXmlItems(tables.unitType).map((a) => ({
-  id: num(a.Index), name: lang[num(a.Name) - 1] ?? `机型${a.Index}`,
-  kind: num(a.Kind), size: num(a.Size), levelType: num(a.LevelType), model: num(a.Model)
+  id: num(a.Index),
+  name: langAt(a.Name) || `机型${a.Index}`,
+  info: langAt(a.Info),
+  kind: num(a.Kind),
+  size: num(a.Size),
+  levelType: num(a.LevelType),
+  model: num(a.Model),
+  hp: num(a.HP),
+  en: num(a.EN),
+  agility: num(a.Agility),
+  limit: num(a.Limit),
+  move: num(a.Move),
+  hangarS: num(a.HangarS),
+  hangarL: num(a.HangarL),
+  weapon1: num(a.Weapon1),
+  weapon2: num(a.Weapon2),
+  shield: num(a.Shield),
+  ability1: num(a.Ablity1),
+  ability2: num(a.Ablity2),
+  ability3: num(a.Ablity3)
 }))
 
 const levelTables = {}
@@ -51,15 +79,67 @@ for (const a of parseXmlItems(tables.unitLevel)) {
 }
 
 const characters = parseXmlItems(tables.character).map((a) => ({
-  id: num(a.Index), name: lang[num(a.Name) - 1] ?? `驾驶员${a.Index}`, portrait: num(a.Portrait)
+  id: num(a.Index),
+  name: langAt(a.Name) || `驾驶员${a.Index}`,
+  info: langAt(a.Info),
+  portrait: num(a.Portrait),
+  joinLv: num(a.JoinLv),
+  shoot: num(a.Shoot),
+  maneuver: num(a.Maneuver),
+  command: num(a.Command),
+  sp: num(a.SP),
+  melee: num(a.Melee),
+  reaction: num(a.Reaction),
+  talents: Array.from({ length: 10 }, (_, i) => num(a[`Talent${i + 1}`])).filter((x) => x > 0),
+  skills: Array.from({ length: 3 }, (_, i) => num(a[`Skill${i + 1}`])).filter((x) => x > 0)
 }))
 
 const items = parseXmlItems(tables.item).map((a) => ({
-  id: num(a.Index), name: lang[num(a.Name) - 1] ?? `装备${a.Index}`, icon: num(a.Icon)
+  id: num(a.Index),
+  name: langAt(a.Name) || `装备${a.Index}`,
+  info: langAt(a.Info),
+  icon: num(a.Icon)
 }))
 
 const armies = parseXmlItems(tables.army).map((a) => ({
-  id: num(a.Index), name: lang[num(a.Name) - 1] ?? `军团${a.Index}`, flag: num(a.Flag)
+  id: num(a.Index), name: langAt(a.Name) || `军团${a.Index}`, flag: num(a.Flag)
+}))
+
+const skills = parseXmlItems(tables.skill).map((a) => ({
+  id: num(a.Index),
+  name: langAt(a.Name) || `技能${a.Index}`,
+  info: langAt(a.Info),
+  type: num(a.Type),
+  sp: num(a.SP)
+}))
+
+const talents = parseXmlItems(tables.talent).map((a) => ({
+  id: num(a.Index),
+  name: langAt(a.Name) || `天赋${a.Index}`,
+  infos: [1, 2, 3, 4, 5].map((i) => langAt(a[`Info${i}`])).filter(Boolean)
+}))
+
+const abilities = parseXmlItems(tables.ability).map((a) => ({
+  id: num(a.Index),
+  name: langAt(a.Name) || `能力${a.Index}`,
+  info: langAt(a.Info),
+  icon: num(a.Icon),
+  type: num(a.Type),
+  en: num(a.EN),
+  range: num(a.Range)
+}))
+
+const weapons = parseXmlItems(tables.weapon).map((a) => ({
+  id: num(a.Index),
+  name: langAt(a.Name) || `武器${a.Index}`,
+  info: langAt(a.Info1) || langAt(a.Info2),
+  icon: num(a.Icon),
+  en: num(a.EN),
+  damage: num(a.Damage),
+  hit: num(a.Hit),
+  rangeMin: num(a.RangeMin),
+  rangeMax: num(a.RangeMax),
+  count: num(a.Count)
 }))
 
 /** 存档 PlanetData.name 指向 LanguageData 下标（1-based）；当前地图 17 星为 358..374 */
@@ -99,8 +179,37 @@ function num(v) { return parseInt(v, 10) || 0 }
 function die(msg) { console.error(msg); process.exit(1) }
 function parseArgs(argv) {
   const o = {}
-  for (let i = 0; i < argv.length; i++) if (argv[i].startsWith('--')) o[argv[i].slice(2)] = argv[i + 1]
+  for (let i = 0; i < argv.length; i++) {
+    if (!argv[i].startsWith('--')) continue
+    const key = argv[i].slice(2)
+    const next = argv[i + 1]
+    if (next === undefined || next.startsWith('--')) o[key] = true
+    else { o[key] = next; i++ }
+  }
   return o
+}
+
+// ---------- Phase 4 early: game-data.json（可单独跑） ----------
+const gameData = {
+  unitTypes, characters, items, armies, planets, levelTables, unitMaxExp,
+  skills, talents, abilities, weapons
+}
+const jsonPath = path.join(OUT, 'src', 'common', 'data', 'game-data.json')
+fs.mkdirSync(path.dirname(jsonPath), { recursive: true })
+fs.writeFileSync(jsonPath, JSON.stringify(gameData, null, 2) + '\n', 'utf8')
+console.log(
+  'game-data.json 已写入 | unitTypes:', unitTypes.length,
+  '| characters:', characters.length,
+  '| items:', items.length,
+  '| skills:', skills.length,
+  '| talents:', talents.length,
+  '| abilities:', abilities.length,
+  '| weapons:', weapons.length
+)
+if (unitTypes.length !== 92) die('机型数量异常（应为 92），检查提取')
+if (args['json-only']) {
+  console.log('(--json-only) 跳过图像导出')
+  process.exit(0)
 }
 
 // ---------- Phase 2: AssetRipper 导出 ----------
@@ -170,14 +279,7 @@ for (const it of items) cropSprite(`itemIcon_${it.icon - 1}`, 'itemIcon', `item-
 for (let n = 0; n <= 33; n++) copyPng(`flagRound${n}`, `flag-round-${n}`)
 for (let n = 0; n <= 11; n++) cropSprite(`traditionIcon_${n}`, 'traditionIcon', `tradition-${n}`)
 
-// ---------- Phase 4: game-data.json ----------
-const gameData = { unitTypes, characters, items, armies, planets, levelTables, unitMaxExp }
-const jsonPath = path.join(OUT, 'src', 'common', 'data', 'game-data.json')
-fs.mkdirSync(path.dirname(jsonPath), { recursive: true })
-fs.writeFileSync(jsonPath, JSON.stringify(gameData, null, 2) + '\n', 'utf8')
-
 console.log('完成:', JSON.stringify(stats), '| unitTypes:', unitTypes.length, '| characters:', characters.length, '| items:', items.length, '| armies:', armies.length, '| planets:', planets.length)
-if (unitTypes.length !== 92) die('机型数量异常（应为 92），检查提取')
 
 function waitHttp(port, timeoutMs) {
   return new Promise((resolve, reject) => {

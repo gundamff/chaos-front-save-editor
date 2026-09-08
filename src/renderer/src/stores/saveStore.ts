@@ -1,21 +1,53 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, shallowRef, triggerRef, markRaw } from 'vue'
 import { ElMessage } from 'element-plus'
-import { SaveData, loadCollectionText, serializeCollectionText, type CollectionSnapshot } from '../../../common/saveModel'
+import {
+  SaveData,
+  loadCollectionText,
+  serializeCollectionText,
+  type CollectionSnapshot
+} from '../../../common/saveModel'
+import type { GameData } from '../../../common/gameData'
 import type { BackupInfo, SlotInfo, WriteResult } from '../../../common/ipc'
-import { t } from '../i18n'
+import { t, translateError } from '../i18n'
 
 export const useSaveStore = defineStore('save', () => {
   const saveDir = ref('')
   const slots = ref<SlotInfo[]>([])
   const currentSlot = ref<number | null>(null)
-  const save = ref<SaveData | null>(null)
-  const collection = ref<CollectionSnapshot | null>(null)
+  /** 类实例必须 shallowRef + markRaw，否则 Pinia/reactive 会弄丢原型方法 */
+  const save = shallowRef<SaveData | null>(null)
+  const collection = shallowRef<CollectionSnapshot | null>(null)
   const dirty = ref(false)
   const backups = ref<BackupInfo[]>([])
 
+  function setSave(data: SaveData | null): void {
+    save.value = data ? markRaw(data) : null
+  }
+
+  /** HMR 后旧实例可能仍挂着过期原型，装上/卸下前纠一次 */
+  function api(): SaveData {
+    const s = save.value
+    if (!s) throw new Error('NO_SAVE')
+    if (typeof s.equipItem !== 'function') {
+      Object.setPrototypeOf(s, SaveData.prototype)
+    }
+    return s
+  }
+
   function markDirty(): void {
     dirty.value = true
+    if (save.value) triggerRef(save)
+  }
+
+  function equipItem(unitIndex: number, itemId: number, gd: GameData): void {
+    api().equipItem(unitIndex, itemId, gd)
+    markDirty()
+  }
+
+  function unequipItem(unitIndex: number, slot: number): void {
+    api().unequipItem(unitIndex, slot)
+    markDirty()
   }
 
   async function refreshSlots(): Promise<void> {
@@ -40,10 +72,10 @@ export const useSaveStore = defineStore('save', () => {
       const text = await window.api.readSlot(saveDir.value, slot)
       const data = SaveData.load(text)
       currentSlot.value = slot
-      save.value = data
+      setSave(data)
       dirty.value = false
       try {
-        collection.value = loadCollectionText(await window.api.readCollection(saveDir.value))
+        collection.value = markRaw(loadCollectionText(await window.api.readCollection(saveDir.value)))
       } catch {
         collection.value = null
       }
@@ -55,7 +87,13 @@ export const useSaveStore = defineStore('save', () => {
 
   async function saveSlot(): Promise<WriteResult | null> {
     if (!save.value || currentSlot.value === null) return null
-    const r = await window.api.writeSlot(saveDir.value, currentSlot.value, save.value.serialize())
+    let text: string
+    try {
+      text = save.value.serialize()
+    } catch (e) {
+      return { ok: false, error: translateError(e) }
+    }
+    const r = await window.api.writeSlot(saveDir.value, currentSlot.value, text)
     if (r.ok) {
       dirty.value = false
       backups.value = await window.api.listBackups(saveDir.value, currentSlot.value)
@@ -97,6 +135,8 @@ export const useSaveStore = defineStore('save', () => {
     dirty,
     backups,
     markDirty,
+    equipItem,
+    unequipItem,
     refreshSlots,
     init,
     chooseDir,

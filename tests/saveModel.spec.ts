@@ -105,6 +105,27 @@ describe('SaveData', () => {
     expect(after[0]).toBe(before[0] + 2) // 两件 id=1 归还
   })
 
+  it('equipItem / unequipItem sync PlayerItems; ships 4 slots, mechs 2', () => {
+    const s = SaveData.load(fixture())
+    const before = s.docPlayerItems()[0]
+    // unit0 type 5 = 战舰 kind1 → 4 槽
+    s.equipItem(0, 1, gd)
+    expect(s.units[0].items).toEqual([1])
+    expect(s.docPlayerItems()[0]).toBe(before - 1)
+    s.unequipItem(0, 0)
+    expect(s.units[0].items).toEqual([])
+    expect(s.docPlayerItems()[0]).toBe(before)
+    s.units[0].items = [1, 2, 3, 4]
+    expect(() => s.equipItem(0, 1, gd)).toThrow(expect.objectContaining({ code: 'ITEM_FULL', args: [4] }))
+    // unit1 type 78 不在 gd 表 → 按机体 2 槽
+    s.units[1].items = [1, 1]
+    s.docPlayerItems()[0] = 5
+    expect(() => s.equipItem(1, 1, gd)).toThrow(expect.objectContaining({ code: 'ITEM_FULL', args: [2] }))
+    s.units[0].items = []
+    s.docPlayerItems()[1] = 0
+    expect(() => s.equipItem(0, 2, gd)).toThrow(expect.objectContaining({ code: 'ITEM_EMPTY' }))
+  })
+
   it('maxAllPilots sets every pilot exp to 20000', () => {
     const s = SaveData.load(fixture())
     expect(s.maxAllPilots()).toBe(3)
@@ -160,6 +181,7 @@ describe('SaveData', () => {
     const s = SaveData.load(fixture())
     expect(s.isUndeployed(s.units[0])).toBe(true)
     expect(s.unitAt(1, 0)).toBe(-1)
+    s.setUnitPilot(0, 84)
     s.deployUnit(0, 1, 0)
     expect(s.units[0].number).toEqual([1, 0])
     expect(s.unitAt(1, 0)).toBe(0)
@@ -170,6 +192,7 @@ describe('SaveData', () => {
 
   it('deployUnit onto occupied slot swaps positions', () => {
     const s = SaveData.load(fixture())
+    s.setUnitPilot(0, 84)
     // unit1 already at [1,2]
     s.deployUnit(0, 1, 2)
     expect(s.units[0].number).toEqual([1, 2])
@@ -188,8 +211,19 @@ describe('SaveData', () => {
     expect(s.units[0].characterId).toBe(0)
   })
 
+  it('allows deploy without pilot but rejects clear-pilot and save', () => {
+    const s = SaveData.load(fixture())
+    s.deployUnit(0, 1, 0)
+    expect(s.units[0].number).toEqual([1, 0])
+    expect(() => s.setUnitPilot(1, 0)).toThrow(expect.objectContaining({ code: 'DEPLOYED_NO_PILOT' }))
+    expect(() => s.serialize()).toThrow(expect.objectContaining({ code: 'DEPLOYED_NO_PILOT' }))
+    s.setUnitPilot(0, 84)
+    expect(() => s.serialize()).not.toThrow()
+  })
+
   it('deployUnit rejects out-of-range grid', () => {
     const s = SaveData.load(fixture())
+    s.setUnitPilot(0, 84)
     expect(() => s.deployUnit(0, 0, 0)).toThrow(expect.objectContaining({ code: 'FORMATION_OUT_OF_RANGE' }))
     expect(() => s.deployUnit(0, 5, 0)).toThrow(expect.objectContaining({ code: 'FORMATION_OUT_OF_RANGE' }))
     expect(() => s.deployUnit(0, 1, 6)).toThrow(expect.objectContaining({ code: 'FORMATION_OUT_OF_RANGE' }))

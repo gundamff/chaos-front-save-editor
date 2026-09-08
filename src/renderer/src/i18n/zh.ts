@@ -10,7 +10,9 @@ export const zh: MessageTree = {
     saved: '已保存（备份 {0}）',
     langZh: '中文',
     langEn: 'English',
-    about: '关于'
+    about: '关于',
+    editing: '正在编辑：槽 {0} · {1} · 第 {2} 天 · {3}',
+    editingDirty: '未保存'
   },
   about: {
     title: '关于',
@@ -77,7 +79,7 @@ export const zh: MessageTree = {
     indShort: '工'
   },
   formation: {
-    hint: '先点选机体（网格或未上阵列表），再点目标格子上阵/换位；同一驾驶员不能开两台机',
+    hint: '可先把机体拖上格子，再把驾驶员拖到机体上；也可在下方待上阵区先分配再上阵。保存前上阵机体必须有驾驶员。',
     undeploy: '下阵选中',
     selected: '已选：{0} · {1}',
     pilot: '驾驶员',
@@ -85,9 +87,35 @@ export const zh: MessageTree = {
     col: '列 {0}',
     row: '行 {0}',
     empty: '空',
-    bench: '未上阵（{0}）',
+    bench: '未上阵（{0}）· 可拖入下阵',
+    benchUnits: '待上阵机体（{0}）· 拖到格子上阵，也可拖回此处下阵',
+    benchPilots: '待上阵驾驶员（{0}）· 拖到机体上分配',
+    needPilot: '需先分配驾驶员',
+    noFreePilots: '暂无空闲驾驶员',
+    dropPilotNeedUnit: '请把驾驶员拖到已有机体上',
     allDeployed: '全部已上阵',
-    none: '—'
+    none: '—',
+    detailEmpty: '点击机体图标或驾驶员头像查看详情',
+    focusUnit: '机体信息',
+    focusPilot: '驾驶员信息',
+    secWeapons: '武器',
+    secAbilities: '机体能力',
+    secItems: '已装装备',
+    emptySlot: '空槽',
+    equip: '装上',
+    unequip: '卸下',
+    inventory: '仓库（点击装上）',
+    secPilot: '驾驶员',
+    secSkills: '技能',
+    secTalents: '天赋',
+    statAgility: '敏捷',
+    statMove: '移动',
+    statLimit: '限界',
+    statShoot: '射击',
+    statManeuver: '机动',
+    statCommand: '指挥',
+    statMelee: '格斗',
+    statReaction: '反应'
   },
   units: {
     unknownType: '未知机型#{0}',
@@ -155,6 +183,11 @@ export const zh: MessageTree = {
   error: {
     FORMATION_OUT_OF_RANGE: '编队坐标越界: [{0},{1}]（有效 row=1..{2}, col=0..{3}）',
     UNIT_INDEX: '机体下标无效: {0}',
-    PILOT_TAKEN: '驾驶员已被占用（机体 #{0}）'
+    PILOT_TAKEN: '驾驶员已被占用（机体 #{0}）',
+    DEPLOYED_NO_PILOT: '已上阵机体缺少驾驶员（机体 #{0}），请先拖驾驶员上去再保存，否则游戏会崩溃',
+    ITEM_FULL: '携带道具已满（最多 {0} 件；战舰 4 / 机体 2）',
+    ITEM_EMPTY: '仓库中没有该道具（id {0}）',
+    ITEM_ID: '无效道具 id: {0}',
+    ITEM_SLOT: '无效装备槽位: {0}'
   }
 }
