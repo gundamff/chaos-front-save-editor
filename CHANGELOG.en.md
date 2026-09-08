@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-08
+
+### Added
+
+- In-app Chinese / English UI (follows system locale by default; switch in the header)
+
 ### Infrastructure
 
 - GitHub Actions: `CI` (tests on push/PR) and `Release` (build and publish on `v*` tags)
@@ -11,7 +17,6 @@
 ### Docs
 
 - English `README.en.md`, `CHANGELOG.en.md`, and `docs/RELEASE.en.md`
-- In-app Chinese / English UI (follows system locale by default)
 
 ## [1.1.0] - 2026-09-08
 
