@@ -1,5 +1,11 @@
 # 更新日志
 
+## [Unreleased]
+
+### 工程
+
+- 增加 GitHub Actions：`CI`（push/PR 跑测试）与 `Release`（推送 `v*` 标签自动打包并发版）
+
 ## [1.1.0] - 2026-09-08
 
 ### 新增

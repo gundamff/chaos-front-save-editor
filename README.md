@@ -59,6 +59,41 @@
 6. **还原 / 删除备份**：在「存档」页下方的备份列表中，可「还原」覆盖当前存档，或「删除」不需要的备份文件
 7. 更新说明见 [CHANGELOG.md](CHANGELOG.md)；发行包见 [Releases](../../releases)
 
+## 如何发版（GitHub Actions 自动打包）
+
+你**不需要**在自己电脑上跑 `npm run dist` 再手工上传。仓库已配置：推送一个版本标签 `v*` 后，GitHub 会自动测试、打包便携版 exe，并创建 [Release](../../releases)。
+
+### 第一次先看一眼
+
+1. 打开仓库页 → **Actions**
+2. 之后每次 `git push` 到 `main` 会跑 **CI**（测试）；推送 `v1.2.0` 这类标签会跑 **Release**（打包发版）
+3. 若 Actions 是灰的，点一次 **I understand my workflows, go ahead and enable them**
+
+### 发一个新版本（例如 1.2.0）
+
+在本地项目目录执行（PowerShell / 终端均可）：
+
+```bash
+# 1) 改 CHANGELOG.md：把新内容写在顶部，标题用 ## [1.2.0] - 日期
+# 2) 把 package.json 里的 "version" 改成 1.2.0（可选手改；CI 也会按标签再同步一次）
+
+git add CHANGELOG.md package.json package-lock.json
+git commit -m "chore: release v1.2.0"
+git push origin main
+
+# 3) 打标签并推送 —— 这一步会触发自动发版
+git tag v1.2.0
+git push origin v1.2.0
+```
+
+然后打开 **Actions → Release**，等绿勾；再到 **Releases** 页就能下载 `ChaosFrontSaveEditor-1.2.0.exe`。
+
+### 注意
+
+- 标签必须是 `v` + 数字版本，例如 `v1.2.0`（不要写成 `1.2.0` 或 `release-1.2.0`）
+- Release 正文会自动从 `CHANGELOG.md` 里对应版本段落生成
+- 打包大约需要几分钟；失败时看 Actions 日志里红色那一步
+
 ## 开发者构建
 
 环境要求：Node.js 20+、npm、Windows（打包目标为 win x64）。
