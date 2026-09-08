@@ -1,5 +1,7 @@
 # 维护者：如何发版
 
+[**中文**](RELEASE.md) | [English](RELEASE.en.md)
+
 面向仓库维护者。推送 `v*` 标签后，GitHub Actions 会自动测试、打包便携 exe 并创建 Release。
 
 ## 第一次

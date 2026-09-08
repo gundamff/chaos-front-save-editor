@@ -1,7 +1,7 @@
 name: Release
 
 # 推送 v* 标签时自动打包并创建 GitHub Release
-# 维护者说明见 docs/RELEASE.md
+# 维护者说明见 docs/RELEASE.md（English: docs/RELEASE.en.md）
 on:
   push:
     tags:

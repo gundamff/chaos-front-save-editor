@@ -1,5 +1,7 @@
 # Chaos Front 存档修改器
 
+[**中文**](README.md) | [English](README.en.md)
+
 一款用于《Chaos Front》（混乱前线）的 Windows 桌面存档修改器，基于 Electron 构建，可修改资源、机体、驾驶员、解锁项与图鉴，全部写操作均自动备份且原子落盘。
 
 > **非官方工具。** 与 ChaosGalaxyStudio / 《Chaos Front》官方无任何关联、授权或合作。仅供已购买正版的玩家在本地、单机环境下学习研究；请勿用于联机、商业用途或传播已修改的存档。
@@ -57,7 +59,7 @@
 4. 在对应标签页中修改数据，点击右上角「保存到存档」
 5. 每次保存都会先在存档目录的 `backup/` 子目录生成带时间戳的备份（如 `savedata0_20260907_120000.cf.bak`），自动保留最近 10 份
 6. **还原 / 删除备份**：在「存档」页下方的备份列表中，可「还原」覆盖当前存档，或「删除」不需要的备份文件
-7. 更新说明见 [CHANGELOG.md](CHANGELOG.md)；发行包见 [Releases](../../releases)
+7. 更新说明见 [CHANGELOG.md](CHANGELOG.md)（[English](CHANGELOG.en.md)）；发行包见 [Releases](../../releases)
 
 ## 开发者构建
 

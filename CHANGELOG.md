@@ -1,10 +1,16 @@
 # 更新日志
 
+[**中文**](CHANGELOG.md) | [English](CHANGELOG.en.md)
+
 ## [Unreleased]
 
 ### 工程
 
 - 增加 GitHub Actions：`CI`（push/PR 跑测试）与 `Release`（推送 `v*` 标签自动打包并发版）
+
+### 文档
+
+- 增加英文文档：`README.en.md`、`CHANGELOG.en.md`、`docs/RELEASE.en.md`
 
 ## [1.1.0] - 2026-09-08
 
